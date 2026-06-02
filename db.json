@@ -1,0 +1,19 @@
+{
+  "users": [
+    {
+      "id": "resident_1780400903524",
+      "name": "kalyan",
+      "email": "shyamroyal916kdm@gmail.com",
+      "role": "resident",
+      "phone": "7993148967",
+      "password_hash": "a2d9197963c81d64b876eaa5f16a923d30d9f8db372006884b071058c90998",
+      "block": "A",
+      "floor": "1",
+      "door_no": "101"
+    }
+  ],
+  "workers": [],
+  "complaints": [],
+  "qrLogs": [],
+  "resetTokens": []
+}
