@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+const API_URL = import.meta.env.VITE_API_URL;
 import { User, UserRole } from '../types';
 import { 
   Lock, Mail, User as UserIcon, Building, Phone, 
@@ -85,7 +86,11 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
         name: viewState === 'register' ? name : '',
       });
 
-      const response = await fetch(`/api/auth/google/url?${queryParams.toString()}`);
+      const API_URL = import.meta.env.VITE_API_URL;
+
+const response = await fetch(
+  `${API_URL}/api/auth/google/url?${queryParams.toString()}`
+);
       if (!response.ok) {
         throw new Error('Could not retrieve Google Sign-In URL from Gate Server.');
       }
@@ -151,7 +156,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
     setErrorMsg('');
     setSuccessMsg('');
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: loginEmail, password: loginPassword })
@@ -195,7 +200,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
     setErrorMsg('');
     setSuccessMsg('');
     try {
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -241,7 +246,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
     setSimulatedInbox(null);
 
     try {
-      const response = await fetch('/api/auth/forgot-password', {
+      const response = await fetch(`${API_URL}/api/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: forgotEmail.trim() })
@@ -290,7 +295,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
     setSuccessMsg('');
 
     try {
-      const response = await fetch('/api/auth/reset-password', {
+      const response = await fetch(`${API_URL}/api/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: resetToken.trim(), password: newPassword })
