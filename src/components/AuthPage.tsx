@@ -54,9 +54,14 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       const origin = event.origin;
-      if (!origin.endsWith('.run.app') && !origin.includes('localhost') && !origin.includes('127.0.0.1')) {
-        return;
-      }
+      const allowedOrigins = [
+  'https://securesociety-smart-apartment-service.onrender.com',
+  'http://localhost:3000'
+];
+
+if (!allowedOrigins.includes(event.origin)) {
+  return;
+}
       if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
         setGoogleLoading(false);
         setSuccessMsg('Google Authentication Completed Successfully.');
