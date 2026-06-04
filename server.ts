@@ -14,7 +14,7 @@ const DB_FILE = path.join(process.cwd(), 'db.json');
 app.use(cors({
   origin: [
     'https://smartapartmentservices.vercel.app',
-    'http://localhost:5173'
+    'http://localhost:3000'
   ],
   credentials: true
 }));
