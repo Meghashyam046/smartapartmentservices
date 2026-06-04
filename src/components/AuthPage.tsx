@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = "https://securesociety-smart-apartment-service.onrender.com";
 import { User, UserRole } from '../types';
 import { 
   Lock, Mail, User as UserIcon, Building, Phone, 
