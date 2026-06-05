@@ -10,6 +10,8 @@ interface ResidentDashboardProps {
   user: User;
   onRefreshProfiles: () => void;
 }
+const API_URL = import.meta.env.VITE_API_URL;
+
 
 export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentDashboardProps) {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
@@ -40,7 +42,7 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
   const [feedbackComment, setFeedbackComment] = useState('');
 
   const loadComplaints = () => {
-    fetch('/api/complaints/resident', {
+    fetch(`${API_URL}/api/complaints/resident`, {
       headers: { 'Authorization': `Bearer ${user.id}` }
     })
       .then(res => {
@@ -70,7 +72,7 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
     setErrorMsg('');
 
     try {
-      const response = await fetch('/api/complaints', {
+      const response = await fetch(`${API_URL}/api/complaints`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -110,7 +112,7 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
     setAiLoading(true);
     setAiAdvice(null);
     try {
-      const response = await fetch('/api/ai/diagnose', {
+      const response = await fetch(`${API_URL}/api/ai/diagnose`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -200,7 +202,7 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
   const handleSimulateQRScan = async () => {
     if (!scanningComplaint) return;
     try {
-      const response = await fetch(`/api/complaints/${scanningComplaint.id}/qr-code`, {
+      const response = await fetch(`${API_URL}/api/complaints/${scanningComplaint.id}/qr-code`, {
         headers: { 'Authorization': `Bearer ${user.id}` }
       });
       const data = await response.json();
@@ -218,7 +220,7 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
   const handleVerifyWorker = async (status: 'verified' | 'rejected') => {
     if (!scanningComplaint) return;
     try {
-      const res = await fetch(`/api/complaints/${scanningComplaint.id}/verify-worker`, {
+      const res = await fetch(`${API_URL}/api/complaints/${scanningComplaint.id}/verify-worker`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -244,17 +246,20 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
     if (!ratingComplaint) return;
 
     try {
-      const res = await fetch(`/api/complaints/${ratingComplaint.id}/feedback`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.id}`
-        },
-        body: JSON.stringify({
-          rating: selectedStars,
-          comment: feedbackComment
-        })
-      });
+      const res = await fetch(
+  `${API_URL}/api/complaints/${ratingComplaint.id}/feedback`,
+  {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${user.id}`
+    },
+    body: JSON.stringify({
+      rating: selectedStars,
+      comment: feedbackComment
+    })
+  }
+);
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
