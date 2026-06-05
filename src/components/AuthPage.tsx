@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-const API_URL = "https://securesociety-smart-apartment-service.onrender.com";
 import { User, UserRole } from '../types';
 import { 
   Lock, Mail, User as UserIcon, Building, Phone, 
@@ -11,6 +10,8 @@ import {
 interface AuthPageProps {
   onLoginSuccess: (user: User) => void;
 }
+const API_URL = "https://securesociety-smart-apartment-service.onrender.com";
+
 
 export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
   // viewState can be 'login' | 'register' | 'forgot' | 'reset'
