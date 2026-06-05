@@ -58,7 +58,7 @@ export default function WorkerDashboard({ user }: WorkerDashboardProps) {
       const headers = { 'Authorization': `Bearer ${user.id}` };
       
       const [resComplaints, resProfile] = await Promise.all([
-        fetch(`${API_URL}/api/complaints/worker`, { headers })
+        fetch(`${API_URL}/api/complaints/worker`, { headers }),
         fetch(`${API_URL}/api/worker/profile`, { headers })
 
       ]);
