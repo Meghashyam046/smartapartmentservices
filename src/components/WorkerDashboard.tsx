@@ -6,6 +6,8 @@ import {
   Star, Calendar, Filter, ChevronRight, MessageSquare, AlertTriangle 
 } from 'lucide-react';
 
+const API_URL = "https://securesociety-smart-apartment-service.onrender.com";
+
 interface WorkerDashboardProps {
   user: User;
 }
@@ -56,8 +58,9 @@ export default function WorkerDashboard({ user }: WorkerDashboardProps) {
       const headers = { 'Authorization': `Bearer ${user.id}` };
       
       const [resComplaints, resProfile] = await Promise.all([
-        fetch('/api/complaints/worker', { headers }),
-        fetch('/api/worker/profile', { headers })
+        fetch(`${API_URL}/api/complaints/worker`, { headers })
+        fetch(`${API_URL}/api/worker/profile`, { headers })
+
       ]);
 
       if (resComplaints.ok) {
@@ -95,7 +98,7 @@ export default function WorkerDashboard({ user }: WorkerDashboardProps) {
   // Direct Category Accept & Release actions
   const handleRespondJob = async (complaintId: string, action: 'accept' | 'reject') => {
     try {
-      const response = await fetch(`/api/complaints/${complaintId}/respond`, {
+      const response = await fetch(`${API_URL}/api/complaints/${complaintId}/respond`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -132,7 +135,7 @@ export default function WorkerDashboard({ user }: WorkerDashboardProps) {
     setQrCodeURI(null);
     setQrPayload(null);
     try {
-      const res = await fetch(`/api/complaints/${job.id}/qr-code`, {
+      const res = await fetch(`${API_URL}/api/complaints/${job.id}/qr-code`,  {
         headers: { 'Authorization': `Bearer ${user.id}` }
       });
       const data = await res.json();
@@ -152,7 +155,7 @@ export default function WorkerDashboard({ user }: WorkerDashboardProps) {
   // Progress job status (Accepted -> In Progress -> Completed)
   const handleUpdateStatus = async (complaintId: string, nextStatus: 'in_progress' | 'completed') => {
     try {
-      const res = await fetch(`/api/complaints/${complaintId}/status`, {
+      const res = await fetch(`${API_URL}/api/complaints/${complaintId}/status`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
