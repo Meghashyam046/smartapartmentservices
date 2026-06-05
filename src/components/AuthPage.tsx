@@ -89,6 +89,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
 
       const response = await await fetch(
   `${API_URL}/api/auth/google/url?${queryParams.toString()}`
+        );
       if (!response.ok) {
         throw new Error('Could not retrieve Google Sign-In URL from Gate Server.');
       }
