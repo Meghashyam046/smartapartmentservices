@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-const API_URL = "https://securesociety-smart-apartment-service.onrender.com";
 import { User, UserRole } from '../types';
 import { 
   Lock, Mail, User as UserIcon, Building, Phone, 
@@ -54,14 +53,9 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       const origin = event.origin;
-      const allowedOrigins = [
-  'https://securesociety-smart-apartment-service.onrender.com',
-  'http://localhost:3000'
-];
-
-if (!allowedOrigins.includes(event.origin)) {
-  return;
-}
+      if (!origin.endsWith('.run.app') && !origin.includes('localhost') && !origin.includes('127.0.0.1')) {
+        return;
+      }
       if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
         setGoogleLoading(false);
         setSuccessMsg('Google Authentication Completed Successfully.');
@@ -91,10 +85,7 @@ if (!allowedOrigins.includes(event.origin)) {
         name: viewState === 'register' ? name : '',
       });
 
-
-const response = await fetch(
-  `${API_URL}/api/auth/google/url?${queryParams.toString()}`
-);
+      const response = await fetch(`/api/auth/google/url?${queryParams.toString()}`);
       if (!response.ok) {
         throw new Error('Could not retrieve Google Sign-In URL from Gate Server.');
       }
@@ -160,7 +151,7 @@ const response = await fetch(
     setErrorMsg('');
     setSuccessMsg('');
     try {
-      const response = await fetch(`${API_URL}/api/auth/login`, {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: loginEmail, password: loginPassword })
@@ -204,7 +195,7 @@ const response = await fetch(
     setErrorMsg('');
     setSuccessMsg('');
     try {
-      const response = await fetch(`${API_URL}/api/auth/register`, {
+      const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -250,7 +241,7 @@ const response = await fetch(
     setSimulatedInbox(null);
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/forgot-password`, {
+      const response = await fetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: forgotEmail.trim() })
@@ -299,7 +290,7 @@ const response = await fetch(
     setSuccessMsg('');
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/reset-password`, {
+      const response = await fetch('/api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: resetToken.trim(), password: newPassword })
@@ -448,9 +439,6 @@ const response = await fetch(
                 {showLoginPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
-            <span className="text-[10px] text-slate-400 font-normal mt-1.5 block">
-              Tip: Pre-seeded accounts use default password <b className="text-slate-600 font-mono">Society123!</b>
-            </span>
           </div>
 
           <button
@@ -659,7 +647,7 @@ const response = await fetch(
           </div>
 
           {/* Conditional items based on Role */}
-          {role === 'resident' ? (
+          {role === 'resident' && (
             <div className="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-2xl border border-slate-100 font-sans">
               <div>
                 <label className="block text-[10px] uppercase font-black text-slate-400 mb-0.5">Block</label>
@@ -692,7 +680,9 @@ const response = await fetch(
                 />
               </div>
             </div>
-          ) : (
+          )}
+
+          {role === 'worker' && (
             <div>
               <label className="block text-[11px] uppercase tracking-wide font-extrabold text-slate-450 mb-1">
                 Technician Certified Skill
