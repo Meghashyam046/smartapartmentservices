@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, Complaint } from '../types';
-import { 
+import {  
   AlertTriangle, Hammer, Wrench, Sparkles, Send, CheckCircle, 
   Clock, Scan, ArrowRight, Star, HeartHandshake, ShieldAlert, X
 } from 'lucide-react';
