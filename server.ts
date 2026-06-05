@@ -6,7 +6,7 @@ import QRCode from 'qrcode';
 import express from 'express';
 import { GoogleGenAI } from '@google/genai';
 import { createServer as createViteServer } from 'vite';
-const express = require('express');
+
 
 const app = express();
 const PORT = 3000;
