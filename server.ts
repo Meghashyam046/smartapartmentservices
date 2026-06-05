@@ -1,6 +1,7 @@
 
 import path from 'path';
 import fs from 'fs';
+import cors from 'cors';
 import crypto from 'crypto';
 import QRCode from 'qrcode';
 import { GoogleGenAI } from '@google/genai';
