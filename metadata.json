@@ -1,6 +1,5 @@
 {
-  "name": "SecureSociety",
+  "name": "SmartApartmentServices",
   "description": "Smart Apartment Service & Verified Worker Entry System with QR-based secure entry verification.",
-  "requestFramePermissions": ["camera"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
