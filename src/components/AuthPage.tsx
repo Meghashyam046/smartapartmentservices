@@ -256,7 +256,13 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
         throw new Error(data.error || 'Failed to verify email address.');
       }
 
-      setSuccessMsg('Password reset token generated successfully.');
+      setSuccessMsg('Verification successful. Continue to reset your password.');
+
+setSimulatedInbox({
+  token: data.resetToken,
+  link: data.resetLink,
+  email: data.email
+});
       
     } catch (err: any) {
       setErrorMsg(err.message || 'An error occurred during verification.');
@@ -269,7 +275,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
   const handleResetPasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!resetToken.trim()) {
-      setErrorMsg('Verification successful. Continue to reset your password.');
+      setErrorMsg('Reset token is required.');
       return;
     }
     if (!newPassword) {
