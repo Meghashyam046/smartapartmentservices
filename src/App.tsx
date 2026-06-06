@@ -190,7 +190,7 @@ export default function App() {
             ) : (
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-indigo-650 animate-pulse" />
-                <span className="text-sm font-bold text-slate-855 font-display">SecureSociety Gate Console</span>
+                <span className="text-sm font-bold text-slate-855 font-display">Secure Smart Apartment Management System</span>
               </div>
             )}
           </div>
