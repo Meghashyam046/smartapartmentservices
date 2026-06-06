@@ -354,8 +354,7 @@ fetch(`${API_URL}/api/complaints/resident`, {
                   disabled={aiLoading || !description.trim()}
                   className="inline-flex items-center gap-1 text-[11px] text-indigo-650 hover:text-indigo-850 disabled:text-slate-350 font-extrabold transition-all duration-150 uppercase tracking-wider"
                 >
-                  <Sparkles className={`w-3.5 h-3.5 ${aiLoading ? 'animate-spin' : ''}`} />
-                  AI Troubleshooter
+                  
                 </button>
               </div>
               <textarea
