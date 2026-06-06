@@ -218,7 +218,7 @@ export default function WorkerDashboard({ user }: WorkerDashboardProps) {
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-extrabold text-indigo-650 uppercase tracking-widest bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-md">
-              SecureSociety Worker Pass
+              Smart Apartment Worker Pass
             </span>
             {isClockedIn && (
               <span className="text-[9px] bg-emerald-50 text-emerald-700 font-extrabold px-1.5 py-0.5 rounded uppercase border border-emerald-100">
@@ -653,11 +653,12 @@ export default function WorkerDashboard({ user }: WorkerDashboardProps) {
                         </div>
 
                         <button
-                          onClick={() => handleUpdateStatus(job.id, 'completed')}
-                          className="w-full inline-flex items-center justify-center gap-1.5 py-3 bg-emerald-650 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-lg transition duration-150 cursor-pointer uppercase tracking-wider"
-                        >
-                          <CheckSquare className="w-4 h-4" /> Mark as Repair Resolved
-                        </button>
+  onClick={() => handleUpdateStatus(job.id, 'completed')}
+  className="w-full inline-flex items-center justify-center gap-1.5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-lg transition duration-150 cursor-pointer"
+>
+  <CheckSquare className="w-4 h-4" />
+  Mark as Resolved
+</button>
                       </div>
                     )}
 
