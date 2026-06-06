@@ -343,7 +343,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
         <h2 className="text-2xl font-black font-sans text-slate-900 tracking-tight">Smart Apartment Services</h2>
         <p className="text-xs text-slate-500 max-w-xs mx-auto leading-normal">
           {viewState === 'login' && 'Log in or reset to manage complaints, technicians, and entry verification.'}
-          {viewState === 'register' && 'Register a new apartment resident or technical worker account.'}
+          {viewState === 'register' && 'Register a new apartment resident User or technical worker or Admin account.'}
           {viewState === 'forgot' && 'Submit your email to receive a secure login reset validation token.'}
           {viewState === 'reset' && 'Reset your password to standard SecureSociety credentials.'}
         </p>
