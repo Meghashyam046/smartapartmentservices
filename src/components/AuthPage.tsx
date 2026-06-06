@@ -269,7 +269,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
   const handleResetPasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!resetToken.trim()) {
-      setErrorMsg('Please specify your password reset token.');
+      setErrorMsg('Verification successful. Continue to reset your password.');
       return;
     }
     if (!newPassword) {
@@ -787,7 +787,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
             <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-2xl space-y-3 mt-4 animate-fadeIn">
               <div className="flex items-center gap-1.5 text-indigo-850 font-black uppercase text-[10px] tracking-widest border-b border-indigo-100 pb-1.5">
                 <Mail className="w-4 h-4 text-indigo-600 animate-bounce" />
-                Password Reset Token
+                PASSWORD RESET VERIFICATION
               </div>
               <div className="text-xs text-indigo-950 font-medium leading-relaxed font-sans mt-1">
                 <p>We simulated sending the reset token to <strong className="font-mono text-indigo-700">{simulatedInbox.email}</strong>.</p>
@@ -839,7 +839,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
         <form onSubmit={handleResetPasswordSubmit} className="space-y-4 animate-fadeIn">
           <div>
             <label className="block text-[11px] uppercase tracking-wide font-extrabold text-slate-450 mb-1">
-              Reset Security Token
+              CONTINUE TO RESET PASSWORD
             </label>
             <div className="relative">
               <KeyRound className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
