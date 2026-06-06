@@ -608,12 +608,12 @@ export default function WorkerDashboard({ user }: WorkerDashboardProps) {
 
                           {/* Present entry QR Code Badge key pass to occupants */}
                           <button
-                            onClick={() => handleShowQR(job)}
-                            className="flex-1 bg-indigo-650 hover:bg-indigo-750 border border-transparent text-white font-extrabold text-xs py-2.5 rounded-xl shadow-md cursor-pointer transition active:scale-95 flex items-center justify-center gap-1.5 animate-pulse"
-                          >
-                            <ShieldCheck className="w-4 h-4 shrink-0" />
-                            Display Security Pass QR
-                          </button>
+  onClick={() => handleShowQR(job)}
+  className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm py-3 rounded-xl shadow-md cursor-pointer transition active:scale-95 flex items-center justify-center gap-2"
+>
+  <ShieldCheck className="w-4 h-4 shrink-0" />
+  Show Security QR
+</button>
                         </div>
 
                         {/* Resident scanner gate warnings */}
