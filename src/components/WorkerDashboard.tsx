@@ -666,7 +666,7 @@ export default function WorkerDashboard({ user }: WorkerDashboardProps) {
                     {job.status === 'completed' && (
                       <div className="bg-emerald-50 text-emerald-800 p-3 rounded-xl border border-emerald-150 text-xs font-semibold flex items-center justify-between border-t pt-3">
                         <span className="font-bold flex items-center gap-1">
-                          <BadgeCheck className="w-4.5 h-4.5 text-emerald-600" /> Job Completed successfully
+                          <BadgeCheck className="w-4.5 h-4.5 text-emerald-600" /> Service Completed Successfully
                         </span>
                         {job.rating && (
                           <span className="font-extrabold flex items-center gap-1 text-amber-500 bg-white border px-2.5 py-1 rounded-lg text-[11px] shadow-sm">
