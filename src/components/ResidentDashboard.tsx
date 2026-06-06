@@ -555,7 +555,7 @@ fetch(`${API_URL}/api/complaints/resident`, {
                         Technician Active in Unit (QR Access Match Verified)
                       </div>
                       <p className="text-[11px] text-emerald-700 font-semibold">
-                        Supervisor verification stamp logged successfully. Worker is currently fixing issues inside your home.
+                        Worker verification stamp logged successfully. Worker is currently fixing issues inside your home.
                       </p>
                     </div>
                   )}
