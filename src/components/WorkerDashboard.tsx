@@ -612,7 +612,7 @@ export default function WorkerDashboard({ user }: WorkerDashboardProps) {
   className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm py-3 rounded-xl shadow-md cursor-pointer transition active:scale-95 flex items-center justify-center gap-2"
 >
   <ShieldCheck className="w-4 h-4 shrink-0" />
-  Display Show Security QR
+  Display Security QR
 </button>
                         </div>
 
