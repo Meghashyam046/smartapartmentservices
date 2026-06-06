@@ -96,7 +96,7 @@ export default function App() {
                   <span>Interactive Dashboard</span>
                 </button>
                 <div className="text-[10px] text-slate-450 p-2.5 leading-normal bg-slate-800/40 rounded-xl mt-4 font-medium border border-slate-800">
-                  <span className="text-white font-bold block mb-0.5">Quick Hint</span> Create tickets on the panel, and let AI provide preventive checks.
+                  <span className="text-white font-bold block mb-0.5">Quick Hint</span> Create tickets on the panel, provide preventive checks.
                 </div>
               </div>
             )}
