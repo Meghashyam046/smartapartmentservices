@@ -338,7 +338,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
       <div className="text-center space-y-2">
         <div className="inline-flex items-center gap-1.5 text-slate-900 bg-slate-100 border border-slate-200 px-3 py-1 rounded-full text-xs font-bold font-sans">
           <KeyRound className="w-3.5 h-3.5 text-indigo-505 animate-pulse" />
-          SecureSociety Authorized Access
+          Smart Apartment Authorized Access
         </div>
         <h2 className="text-2xl font-black font-sans text-slate-900 tracking-tight">Smart Apartment Services</h2>
         <p className="text-xs text-slate-500 max-w-xs mx-auto leading-normal">
@@ -450,7 +450,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
             disabled={loading}
             className="w-full inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-3.5 rounded-xl shadow-lg transition active:scale-95 cursor-pointer disabled:bg-slate-400"
           >
-            <span>Authorized Log In</span>
+            <span>Log In</span>
             <ArrowRight className="w-4 h-4" />
           </button>
 
@@ -459,7 +459,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
               <span className="w-full border-t border-slate-200" />
             </div>
             <div className="relative flex justify-center text-[10px] uppercase font-black tracking-widest">
-              <span className="bg-white px-3 text-slate-400">Or credentials context</span>
+              <span className="bg-white px-3 text-slate-400">Or Continue with Google</span>
             </div>
           </div>
 
