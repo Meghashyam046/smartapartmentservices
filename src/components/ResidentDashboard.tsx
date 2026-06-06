@@ -703,7 +703,7 @@ fetch(`${API_URL}/api/complaints/resident`, {
                     className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 border border-transparent text-white font-bold text-xs rounded-xl shadow hover:bg-blue-700 hover:shadow-md transition active:scale-95 cursor-pointer"
                   >
                     <Sparkles className="w-4 h-4 hover:animate-spin" />
-                    Sandbox Simulator:Scan QR Details
+                    Sandbox Simulator: Scan QR Details
                   </button>
                 </div>
               )}
@@ -750,7 +750,7 @@ fetch(`${API_URL}/api/complaints/resident`, {
                   <div className="bg-indigo-50 border border-indigo-100 p-3 rounded-xl text-slate-700 text-xs font-medium space-y-1">
                     <div className="text-indigo-900 font-bold">Resident Identity Attestation:</div>
                     <p className="text-[11px] text-indigo-700">
-                      Does the physical repair worker's photograph, uniform, and voice match the security details on your screen?
+                      Does the technician's uniform and identity match the security details displayed on your screen?
                     </p>
                   </div>
 
