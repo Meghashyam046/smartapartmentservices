@@ -155,19 +155,33 @@ function writeDB(data: any) {
 }
 
 // Simple authentication middleware using custom headers for testing roles out of the box
-function authMiddleware(req: express.Request, res: express.Response, next: express.NextFunction): any {
+import jwt from "jsonwebtoken";
+
+function authMiddleware(req: any, res: any, next: any) {
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Unauthorized. Please switch role or login.' });
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Unauthorized. Please login." });
   }
-  const userId = authHeader.split(' ')[1];
-  const db = readDB();
-  const user = db.users.find((u: any) => u.id === userId);
-  if (!user) {
-    return res.status(401).json({ error: 'User session not found.' });
+
+  const token = authHeader.split(" ")[1];
+  const secret = process.env.JWT_SECRET;
+
+  if (!secret) {
+    return res.status(500).json({ error: "JWT_SECRET not configured" });
   }
-  (req as any).user = user;
-  next();
+
+  try {
+    const decoded = jwt.verify(token, secret) as {
+      id: string;
+      role: string;
+    };
+
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: "Invalid or expired token" });
+  }
 }
 
 // Google OAuth Endpoints
