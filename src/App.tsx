@@ -259,7 +259,7 @@ export default function App() {
               </div>
             ) : (
               <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-400 font-semibold bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
-                <Landmark className="w-4 h-4 text-emerald-600" /> Block Gated Community
+                <Landmark className="w-4 h-4 text-emerald-600" /> Apartment Community
               </div>
             )}
           </div>
