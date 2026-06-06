@@ -488,7 +488,7 @@ fetch(`${API_URL}/api/complaints/resident`, {
                   {c.status === 'pending' && (
                     <div className="bg-slate-50 px-3.5 py-3 rounded-lg border border-slate-100 text-slate-500 text-xs flex items-center gap-2.5 font-bold">
                       <Clock className="w-4 h-4 text-slate-400 shrink-0" />
-                      Status: Queued. Society supervisors are vetting assignments.
+                      Status: Pending Acceptance. The complaint has been sent to a worker and is awaiting acceptance.
                     </div>
                   )}
 
