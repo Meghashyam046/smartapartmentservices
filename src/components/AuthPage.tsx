@@ -536,7 +536,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
                     : 'border-slate-150 text-slate-450 hover:bg-slate-50'
                 }`}
               >
-                Society Admin
+                 Admin
               </button>
             </div>
           </div>
@@ -709,7 +709,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
             disabled={loading}
             className="w-full bg-slate-900 hover:bg-slate-850 text-white font-bold text-xs py-3 rounded-xl px-4 shadow shadow-md transition active:scale-95 gap-2 inline-flex items-center justify-center cursor-pointer disabled:bg-slate-400"
           >
-            <span>Register & Initialize Profile</span>
+            <span>Register</span>
             <ArrowRight className="w-4 h-4" />
           </button>
 
@@ -718,7 +718,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
               <span className="w-full border-t border-slate-200" />
             </div>
             <div className="relative flex justify-center text-[10px] uppercase font-black tracking-widest">
-              <span className="bg-white px-3 text-slate-400">Or credentials context</span>
+              <span className="bg-white px-3 text-slate-400">Or Continue with Google</span>
             </div>
           </div>
 
