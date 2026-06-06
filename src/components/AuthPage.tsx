@@ -787,7 +787,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
             <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-2xl space-y-3 mt-4 animate-fadeIn">
               <div className="flex items-center gap-1.5 text-indigo-850 font-black uppercase text-[10px] tracking-widest border-b border-indigo-100 pb-1.5">
                 <Mail className="w-4 h-4 text-indigo-600 animate-bounce" />
-                Simulated Email Inbox Redirect
+                Password Reset Token
               </div>
               <div className="text-xs text-indigo-950 font-medium leading-relaxed font-sans mt-1">
                 <p>We simulated sending the reset token to <strong className="font-mono text-indigo-700">{simulatedInbox.email}</strong>.</p>
@@ -810,7 +810,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
                     }}
                     className="w-full text-center inline-block py-2 bg-indigo-600 hover:bg-indigo-750 text-white text-[11px] font-extrabold rounded-xl shadow-sm transition active:scale-95 uppercase tracking-wide hover:no-underline"
                   >
-                    Open Password Reset Form &rarr;
+                    Continue to Password Reset
                   </a>
                 </div>
               </div>
