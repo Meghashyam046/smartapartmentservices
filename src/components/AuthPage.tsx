@@ -256,12 +256,8 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
         throw new Error(data.error || 'Failed to verify email address.');
       }
 
-      setSuccessMsg('Verfied! Reset instructions generated.');
-      setSimulatedInbox({
-        token: data.resetToken,
-        link: data.resetLink,
-        email: data.email
-      });
+      setSuccessMsg('Password reset link has been sent to your registered email address.');
+      
     } catch (err: any) {
       setErrorMsg(err.message || 'An error occurred during verification.');
     } finally {
