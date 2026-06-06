@@ -5,6 +5,8 @@ import {
   BarChart4, Clock, Star, X, Trash2, Fingerprint, FileText, 
   CheckCheck, Building, RefreshCw, Sparkles, Home 
 } from 'lucide-react';
+const API_URL = import.meta.env.VITE_API_URL;
+
 
 interface AdminDashboardProps {
   user: User;
@@ -78,11 +80,12 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
       const headers = { 'Authorization': `Bearer ${user.id}` };
 
       const [resComplaints, resWorkers, resAnalytics, resQrLogs, resUsers] = await Promise.all([
-        fetch('/api/complaints/admin', { headers }),
-        fetch('/api/workers/admin', { headers }),
-        fetch('/api/analytics', { headers }),
-        fetch('/api/qr-logs', { headers }),
-        fetch('/api/admin/users', { headers })
+
+fetch(`${API_URL}/api/complaints/admin`, { headers })
+fetch(`${API_URL}/api/workers/admin`, { headers })
+fetch(`${API_URL}/api/analytics`, { headers })
+fetch(`${API_URL}/api/qr-logs`, { headers })
+fetch(`${API_URL}/api/admin/users`, { headers })
       ]);
 
       if (resComplaints.ok) {
@@ -131,7 +134,9 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
     }
 
     try {
-      const res = await fetch(`/api/admin/users/${targetUserId}`, {
+      const res = await fetch(
+  `${API_URL}/api/admin/users/${targetUserId}`,
+  {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${user.id}` }
       });
@@ -152,7 +157,7 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
     try {
       const issueSummary = complaints.map(c => `Category: ${c.service_type}. Detail: ${c.description}. Location: Block ${c.block}. Status: ${c.status}`).join('\n');
       
-      const response = await fetch('/api/ai/diagnose', {
+      const response = await fetch(`${API_URL}/api/ai/diagnose`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -678,7 +683,7 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
                             <span>⚙️ Sector: {u.skill_type || 'General Specialist'}</span>
                           </p>
                         ) : (
-                          <p className="text-[10px] text-slate-400 italic">Global Society Admin Controller</p>
+                          <p className="text-[10px] text-slate-400 italic">Apartment Admin Controller</p>
                         )}
                       </div>
                     </div>
