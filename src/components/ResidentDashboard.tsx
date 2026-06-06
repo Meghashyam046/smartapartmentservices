@@ -405,7 +405,7 @@ fetch(`${API_URL}/api/complaints/resident`, {
               className="w-full inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white p-3 rounded-lg text-xs font-bold shadow-md transition-all duration-150 active:scale-98 disabled:bg-slate-300 cursor-pointer uppercase tracking-wider"
             >
               <Send className="w-3.5 h-3.5" />
-              {isSubmitting ? 'Raising Ticket...' : 'File Ticket with Control Room'}
+              {isSubmitting ? 'Raising Ticket...' : 'File Complaint'}
             </button>
           </form>
 
