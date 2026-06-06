@@ -506,7 +506,7 @@ fetch(`${API_URL}/api/complaints/resident`, {
                             />
                           </div>
                           <div>
-                            <span className="block text-[8px] text-indigo-650 uppercase font-bold tracking-wider">Assigned Contractor</span>
+                            <span className="block text-[8px] text-indigo-650 uppercase font-bold tracking-wider">Accepted by Worke</span>
                             <div className="text-xs font-black text-slate-800 leading-tight">
                               {c.assigned_worker_name || 'Amir Khan'}
                             </div>
@@ -531,7 +531,7 @@ fetch(`${API_URL}/api/complaints/resident`, {
                         <div className="bg-indigo-50 border border-indigo-100 text-indigo-805 p-3 rounded-lg space-y-2 animate-fadeIn">
                           <div className="flex items-center gap-1.5 text-xs font-black text-indigo-900 uppercase tracking-wide">
                             <ShieldAlert className="w-4 h-4 text-indigo-600 shrink-0" />
-                            Lock Check Required for Society Safety
+                            Safety Inspection Required
                           </div>
                           <p className="text-[11px] text-slate-600 font-semibold leading-relaxed">
                             Worker is en route. For complete confidence, tap below and verify the digital QR badge displayed on the worker's device when they knock.
@@ -703,7 +703,7 @@ fetch(`${API_URL}/api/complaints/resident`, {
                     className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 border border-transparent text-white font-bold text-xs rounded-xl shadow hover:bg-blue-700 hover:shadow-md transition active:scale-95 cursor-pointer"
                   >
                     <Sparkles className="w-4 h-4 hover:animate-spin" />
-                    Sandbox Simulator: Auto-Scan QR Details
+                    Sandbox Simulator:Scan QR Details
                   </button>
                 </div>
               )}
