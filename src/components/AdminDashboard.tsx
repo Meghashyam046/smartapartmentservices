@@ -81,10 +81,10 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
 
       const [resComplaints, resWorkers, resAnalytics, resQrLogs, resUsers] = await Promise.all([
 
-fetch(`${API_URL}/api/complaints/admin`, { headers })
-fetch(`${API_URL}/api/workers/admin`, { headers })
-fetch(`${API_URL}/api/analytics`, { headers })
-fetch(`${API_URL}/api/qr-logs`, { headers })
+fetch(`${API_URL}/api/complaints/admin`, { headers }),
+fetch(`${API_URL}/api/workers/admin`, { headers }),
+fetch(`${API_URL}/api/analytics`, { headers }),
+fetch(`${API_URL}/api/qr-logs`, { headers }),
 fetch(`${API_URL}/api/admin/users`, { headers })
       ]);
 
