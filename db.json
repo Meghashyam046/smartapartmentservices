@@ -10,6 +10,14 @@
       "block": "A",
       "floor": "1",
       "door_no": "101"
+    },
+    {
+      "id": "admin_1780717769841",
+      "name": "Pavan",
+      "email": "admin@gmail.com",
+      "role": "admin",
+      "phone": "9999999999",
+      "password_hash": "a2d9197963c81d64b876eaa5f16a923d30d9f8db372006884b071058c90998"
     }
   ],
   "workers": [],
