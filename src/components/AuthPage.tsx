@@ -256,7 +256,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
         throw new Error(data.error || 'Failed to verify email address.');
       }
 
-      setSuccessMsg('Password reset link has been sent to your registered email address.');
+      setSuccessMsg('Password reset token generated successfully.');
       
     } catch (err: any) {
       setErrorMsg(err.message || 'An error occurred during verification.');
