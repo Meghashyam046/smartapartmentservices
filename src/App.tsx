@@ -232,7 +232,7 @@ export default function App() {
                       </div>
                       <div className="p-2 bg-slate-50 rounded-lg flex gap-2">
                         <span className="w-1.5 h-1.5 bg-indigo-505 rounded-full mt-1 shrink-0"></span>
-                        <p>AI troubleshooting models synced with direct society logs.</p>
+                        <p>Troubleshooting system synced with service logs.</p>
                       </div>
                     </div>
                   </div>
