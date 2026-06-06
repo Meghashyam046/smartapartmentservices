@@ -659,7 +659,7 @@ fetch(`${API_URL}/api/complaints/resident`, {
                   type="submit"
                   className="px-4 py-2 bg-slate-900 border border-transparent hover:bg-slate-800 text-white font-bold rounded-xl shadow transition cursor-pointer"
                 >
-                  Submit Star Verdict
+                  Submit Rating
                 </button>
               </div>
             </form>
