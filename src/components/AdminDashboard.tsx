@@ -161,7 +161,7 @@ fetch(`${API_URL}/api/admin/users`, { headers })
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.id}`
+          'Authorization': `Bearer ${getToken()}`
         },
         body: JSON.stringify({
           service_type: 'Society Manager Preventive Report',
