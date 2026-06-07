@@ -8,6 +8,7 @@ import jwt from "jsonwebtoken";
 import { GoogleGenAI } from '@google/genai';
 import { createServer as createViteServer } from 'vite';
 import { createClient } from "@supabase/supabase-js";
+const jwt = require('jsonwebtoken');
 
 export const supabase = createClient(
   process.env.SUPABASE_URL!,
@@ -736,6 +737,33 @@ app.post('/api/auth/login', async (req, res) => {
       error: "User not found"
     });
   }
+
+  // Password check
+  if (user.password_hash !== hashPassword(password)) {
+    return res.status(401).json({
+      error: "Invalid password"
+    });
+  }
+
+  // JWT Token Create
+  const token = jwt.sign(
+    {
+      id: user.id,
+      email: user.email,
+      role: user.role
+    },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "7d"
+    }
+  );
+
+  res.json({
+    success: true,
+    user,
+    token
+  });
+});
 
   // Verify matching hashed password
 const currentHash = hashPassword(password);
