@@ -7,6 +7,12 @@ import express from 'express';
 import jwt from "jsonwebtoken";
 import { GoogleGenAI } from '@google/genai';
 import { createServer as createViteServer } from 'vite';
+import { createClient } from "@supabase/supabase-js";
+
+export const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 
 const app = express();
@@ -144,7 +150,6 @@ function writeDB(data: any) {
 }
 
 // Simple authentication middleware using custom headers for testing roles out of the box
-import jwt from "jsonwebtoken";
 
 function authMiddleware(req: any, res: any, next: any) {
   const authHeader = req.headers.authorization;
@@ -482,11 +487,24 @@ app.get('/auth/google/simulate', (req: express.Request, res: express.Response) =
 });
 
 async function handleUserGoogleAuth(email: string, name: string, stateData: any, res: express.Response) {
-  const db = readDB();
-  const emailLower = email.trim().toLowerCase();
-  
+  const { data: user, error } = await supabase
+  .from("users")
+  .select("*")
+  .eq("email", email.trim().toLowerCase())
+  .single();
+
+if (error || !user) {
+  return res.status(404).json({
+    error: "User not found"
+  });
+}
   // Find if user already exists
-  let user = db.users.find((u: any) => u.email.toLowerCase() === emailLower);
+const emailLower = email.trim().toLowerCase();
+let { data: user } = await supabase
+  .from("users")
+  .select("*")
+  .eq("email", emailLower)
+  .maybeSingle();
   
   if (!user) {
     const role = stateData.role || 'resident';
@@ -518,11 +536,11 @@ async function handleUserGoogleAuth(email: string, name: string, stateData: any,
         ratings_count: 0,
         reviews: []
       };
-      db.workers.push(newWorker);
+      
     }
-    
-    db.users.push(user);
-    writeDB(db);
+    await supabase.from("workers").insert([newWorker]);
+
+await supabase.from("users").insert([user]);
   }
   
   const { password_hash, ...safeUser } = user;
@@ -704,33 +722,33 @@ app.get(['/auth/google/callback', '/auth/google/callback/'], async (req: express
 });
 
 // Public API: Auth Login / Register
-app.post('/api/auth/login', (req: express.Request, res: express.Response): any => {
+app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
-  if (!email) {
-    return res.status(400).json({ error: 'Email is required' });
+
+  const { data: user, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("email", email.trim().toLowerCase())
+    .single();
+
+  if (error || !user) {
+    return res.status(404).json({
+      error: "User not found"
+    });
   }
-  if (!password) {
-    return res.status(400).json({ error: 'Password is required' });
-  }
-  
-  const db = readDB();
-  const user = db.users.find((u: any) => u.email.toLowerCase() === email.trim().toLowerCase());
-  if (!user) {
-    return res.status(404).json({ error: 'User not found. You can register as a resident.' });
-  }
-  
+
   // Verify matching hashed password
-  const currentHash = hashPassword(password);
-  if (user.password_hash !== currentHash) {
-    return res.status(401).json({ error: 'Incorrect password.' });
-  }
-  
-  // Remove password_hash before returning to client
-  const { password_hash, ...safeUser } = user;
-  res.json({ user: safeUser });
+const currentHash = hashPassword(password);
+if (user.password_hash !== currentHash) {
+  return res.status(401).json({ error: 'Incorrect password.' });
+}
+
+const { password_hash, ...safeUser } = user;
+res.json({ user: safeUser });
 });
 
-app.post('/api/auth/register', (req: express.Request, res: express.Response): any => {
+
+app.post('/api/auth/register', async(req: express.Request, res: express.Response): any => {
   const { name, email, role, block, floor, door_no, phone, skill_type, password } = req.body;
   if (!name || !email || !role) {
     return res.status(400).json({ error: 'Name, email, and role are required' });
@@ -751,11 +769,11 @@ app.post('/api/auth/register', (req: express.Request, res: express.Response): an
     return res.status(400).json({ error: passwordVal.error });
   }
 
-  const db = readDB();
-  const existing = db.users.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
-  if (existing) {
-    return res.status(400).json({ error: 'A user with this email already exists' });
-  }
+  const { data: existing } = await supabase
+  .from("users")
+  .select("id")
+  .eq("email", email.toLowerCase())
+  .maybeSingle();
 
   const newId = role === 'admin' ? `admin_${Date.now()}` : role === 'worker' ? `worker_${Date.now()}` : `resident_${Date.now()}`;
   const newUser: any = {
@@ -774,21 +792,17 @@ app.post('/api/auth/register', (req: express.Request, res: express.Response): an
   } else if (role === 'worker') {
     newUser.skill_type = skill_type || 'Other';
     // Add to workers list too!
-    const newWorker = {
-      id: newId,
-      name,
-      phone: phone || '',
-      skill_type: skill_type || 'Other',
-      availability_status: 'Available' as const,
-      rating: 5.0,
-      ratings_count: 0,
-      reviews: []
-    };
-    db.workers.push(newWorker);
-  }
+  
 
-  db.users.push(newUser);
-  writeDB(db);
+  const { error } = await supabase
+  .from("users")
+  .insert([newUser]);
+
+if (error) {
+  return res.status(400).json({
+    error: error.message
+  });
+}
 
   // Return a safe user object
   const { password_hash, ...safeUser } = newUser;
@@ -796,34 +810,43 @@ app.post('/api/auth/register', (req: express.Request, res: express.Response): an
 });
 
 // Forgot Password Flow API Route
-app.post('/api/auth/forgot-password', (req: express.Request, res: express.Response): any => {
+app.post('/api/auth/forgot-password', async (req: express.Request, res: express.Response): any => {
   const { email } = req.body;
   if (!email) {
     return res.status(400).json({ error: 'Email address is required' });
   }
+const { data: user, error } = await supabase
+  .from("users")
+  .select("*")
+  .eq("email", email.trim().toLowerCase())
+  .single();
 
-  const db = readDB();
-  const user = db.users.find((u: any) => u.email.toLowerCase() === email.trim().toLowerCase());
-  if (!user) {
-    return res.status(404).json({ error: 'No account registered with this email address.' });
-  }
-
-  // Generate secure reset token
-  const token = crypto.randomBytes(24).toString('hex');
-  const durationMins = 15;
-  const expiresAt = new Date(Date.now() + durationMins * 60 * 1000).toISOString();
-
-  if (!db.resetTokens) {
-    db.resetTokens = [];
-  }
-
-  db.resetTokens.push({
-    token,
-    email: user.email.toLowerCase(),
-    expiresAt,
-    used: false
+if (error || !user) {
+  return res.status(404).json({
+    error: "No account registered with this email address."
   });
-  writeDB(db);
+}
+  // Generate secure reset token
+ const token = crypto.randomBytes(24).toString('hex');
+const durationMins = 15;
+const expiresAt = new Date(Date.now() + durationMins * 60 * 1000).toISOString();
+
+const { error: tokenError } = await supabase
+  .from("reset_tokens")
+  .insert([
+    {
+      token,
+      email: user.email,
+      expires_at: expiresAt,
+      used: false
+    }
+  ]);
+
+if (tokenError) {
+  return res.status(500).json({
+    error: tokenError.message
+  });
+}
 
   // Send password reset link via simulated email
   // Format: http://localhost:3000/?resetToken=uuid
@@ -849,7 +872,7 @@ app.post('/api/auth/forgot-password', (req: express.Request, res: express.Respon
 });
 
 // Reset Password Core Action
-app.post('/api/auth/reset-password', (req: express.Request, res: express.Response): any => {
+app.post('/api/auth/reset-password', async (req: express.Request, res: express.Response): any => {
   const { token, password } = req.body;
   if (!token) {
     return res.status(400).json({ error: 'Reset token is required' });
@@ -857,22 +880,21 @@ app.post('/api/auth/reset-password', (req: express.Request, res: express.Respons
   if (!password) {
     return res.status(400).json({ error: 'New password is required' });
   }
+const { data: tokenRecord, error } = await supabase
+  .from("reset_tokens")
+  .select("*")
+  .eq("token", token)
+  .single();
 
-  const db = readDB();
-  if (!db.resetTokens) {
-    return res.status(400).json({ error: 'No active reset tokens' });
-  }
+if (error || !tokenRecord) {
+  return res.status(400).json({
+    error: "Invalid reset token"
+  });
+}
 
-  const tokenRecord = db.resetTokens.find((t: any) => t.token === token);
-  if (!tokenRecord) {
-    return res.status(400).json({ error: 'Reset token is invalid or has expired.' });
-  }
-
-  if (tokenRecord.used) {
-    return res.status(400).json({ error: 'This reset token has already been consumed.' });
-  }
-
-  const isExpired = new Date(tokenRecord.expiresAt).getTime() < Date.now();
+  const isExpired =
+  new Date(tokenRecord.expires_at).getTime() < Date.now();
+  
   if (isExpired) {
     return res.status(400).json({ error: 'This reset token has expired. Tokens are only valid for 10-15 minutes.' });
   }
@@ -884,21 +906,29 @@ app.post('/api/auth/reset-password', (req: express.Request, res: express.Respons
   }
 
   // Find user and securely replace password
-  const userIndex = db.users.findIndex((u: any) => u.email.toLowerCase() === tokenRecord.email.toLowerCase());
-  if (userIndex === -1) {
-    return res.status(404).json({ error: 'User associated with this token not found.' });
-  }
+  const { error: updateError } = await supabase
+  .from("users")
+  .update({
+    password_hash: hashPassword(password)
+  })
+  .eq("email", tokenRecord.email);
 
-  db.users[userIndex].password_hash = hashPassword(password);
-  tokenRecord.used = true;
+if (updateError) {
+  return res.status(500).json({
+    error: updateError.message
+  });
+}
 
-  writeDB(db);
-
+ await supabase
+.from("reset_tokens")
+.update({ used: true })
+.eq("token", token);
+  
   res.json({ message: 'Success! Your password has been securely reset. Try signing in now.' });
 });
 
 // COMPLAINTS: Create (Resident Only)
-app.post('/api/complaints', authMiddleware, (req: any, res: any) => {
+app.post('/api/complaints', authMiddleware, async (req: any, res: any) => {
   const user = req.user;
   if (user.role !== 'resident') {
     return res.status(403).json({ error: 'Only residents can file complaints' });
@@ -909,43 +939,78 @@ app.post('/api/complaints', authMiddleware, (req: any, res: any) => {
     return res.status(400).json({ error: 'All fields (service type, description, block, floor, door number) are required' });
   }
 
-  const db = readDB();
-  const newComplaint = {
-    id: `req_${Math.floor(100 + Math.random() * 900)}`,
-    user_id: user.id,
-    resident_name: user.name,
-    service_type,
-    description,
-    block,
-    floor,
-    door_no,
-    status: 'pending',
-    created_at: new Date().toISOString()
-  };
+ const newComplaint = {
+  id: `req_${Math.floor(100 + Math.random() * 900)}`,
+  user_id: user.id,
+  resident_name: user.name,
+  service_type,
+  description,
+  block,
+  floor,
+  door_no,
+  status: 'pending',
+  created_at: new Date().toISOString()
+};
 
-  db.complaints.push(newComplaint);
-  writeDB(db);
+const { data, error } = await supabase
+  .from("complaints")
+  .insert([newComplaint])
+  .select()
+  .single();
 
-  res.status(201).json(newComplaint);
-});
+if (error) {
+  return res.status(500).json({
+    error: error.message
+  });
+}
 
+res.status(201).json(data);
 // COMPLAINTS: Get Resident complaints
-app.get('/api/complaints/resident', authMiddleware, (req: any, res: any) => {
+app.get('/api/complaints/resident', authMiddleware, async (req: any, res: any) => {
   const user = req.user;
-  const db = readDB();
-  const complaints = db.complaints.filter((c: any) => c.user_id === user.id);
+
+  const { data: complaints, error } = await supabase
+    .from("complaints")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    return res.status(500).json({
+      error: error.message
+    });
+  }
+
   res.json(complaints);
 });
-
 // COMPLAINTS: Get Worker complaints (displays both pending matching skill categories & already accepted jobs)
-app.get('/api/complaints/worker', authMiddleware, (req: any, res: any) => {
+app.get('/api/complaints/worker', authMiddleware, async (req: any, res: any) => {
   const user = req.user;
-  const db = readDB();
-  
+
   if (user.role !== 'worker') {
     return res.status(403).json({ error: 'Worker access only' });
   }
 
+  const { data: complaints, error } = await supabase
+    .from("complaints")
+    .select("*");
+
+  if (error) {
+    return res.status(500).json({
+      error: error.message
+    });
+  }
+
+  const filteredComplaints = complaints.filter((c: any) =>
+    c.assigned_worker_id === user.id ||
+    (
+      c.status === "pending" &&
+      c.service_type?.toLowerCase() === user.skill_type?.toLowerCase()
+    )
+  );
+
+  res.json(filteredComplaints);
+});
   // Filter complaints based on the category of technician if pending, 
   // OR if the technician is already assigned to the complaint.
   const complaints = db.complaints.filter((c: any) => 
@@ -956,34 +1021,71 @@ app.get('/api/complaints/worker', authMiddleware, (req: any, res: any) => {
 });
 
 // COMPLAINTS: Get Admin (all) complaints
-app.get('/api/complaints/admin', authMiddleware, (req: any, res: any) => {
+app.get('/api/complaints/admin', authMiddleware, async (req: any, res: any) => {
   const user = req.user;
+
   if (user.role !== 'admin') {
     return res.status(403).json({ error: 'Admin access only' });
   }
-  const db = readDB();
-  res.json(db.complaints);
+
+  const { data: complaints, error } = await supabase
+    .from("complaints")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    return res.status(500).json({
+      error: error.message
+    });
+  }
+
+  res.json(complaints);
 });
 
 // WORKERS: Get admin workers list + ratings
-app.get('/api/workers/admin', authMiddleware, (req: any, res: any) => {
+app.get('/api/workers/admin', authMiddleware, async (req: any, res: any) => {
   const user = req.user;
+
   if (user.role !== 'admin') {
     return res.status(403).json({ error: 'Admin access only' });
   }
-  const db = readDB();
-  res.json(db.workers);
+
+  const { data: workers, error } = await supabase
+    .from("workers")
+    .select("*");
+
+  if (error) {
+    return res.status(500).json({
+      error: error.message
+    });
+  }
+
+  res.json(workers);
 });
 
 // WORKER: Get worker's own metrics profile, ratings, and reviews comments
-app.get('/api/worker/profile', authMiddleware, (req: any, res: any) => {
+app.get('/api/worker/profile', authMiddleware, async (req: any, res: any) => {
   const user = req.user;
+
   if (user.role !== 'worker') {
     return res.status(403).json({ error: 'Worker access only' });
   }
-  const db = readDB();
-  const worker = db.workers.find((w: any) => w.id === user.id);
-  res.json(worker || { id: user.id, name: user.name, rating: 5.0, ratings_count: 0, reviews: [] });
+
+  const { data: worker } = await supabase
+    .from("workers")
+    .select("*")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  res.json(
+    worker || {
+      id: user.id,
+      name: user.name,
+      rating: 5.0,
+      ratings_count: 0,
+      reviews: []
+    }
+  );
 });
 
 // ADMIN: Get all users (Resident and tech user profiles)
@@ -992,37 +1094,81 @@ app.get('/api/admin/users', authMiddleware, (req: any, res: any) => {
   if (user.role !== 'admin') {
     return res.status(403).json({ error: 'Admin access only' });
   }
-  const db = readDB();
-  const safeUsers = db.users.map(({ password_hash, ...u }: any) => u);
-  res.json(safeUsers);
-});
+  const { data: users, error } = await supabase
+  .from("users")
+  .select("*");
+
+if(error){
+   return res.status(500).json({
+      error:error.message
+   });
+}
+
+const safeUsers = users.map(
+  ({ password_hash, ...u }) => u
+);
+
+res.json(safeUsers);
 
 // ADMIN: Delete a user or technician from database (User details/technicians)
-app.delete('/api/admin/users/:id', authMiddleware, (req: any, res: any) => {
+app.delete('/api/admin/users/:id', authMiddleware, async (req: any, res: any) => {
   const user = req.user;
+
   if (user.role !== 'admin') {
     return res.status(403).json({ error: 'Admin access only' });
   }
+
   const { id } = req.params;
-  const db = readDB();
-  
-  db.users = db.users.filter((u: any) => u.id !== id);
-  db.workers = db.workers.filter((w: any) => w.id !== id);
-  
-  writeDB(db);
-  res.json({ message: 'User deleted successfully from records.' });
-});
 
+  // Delete worker record if exists
+  const { error: workerError } = await supabase
+    .from("workers")
+    .delete()
+    .eq("id", id);
+
+  if (workerError) {
+    return res.status(500).json({
+      error: workerError.message
+    });
+  }
+
+  // Delete user record
+  const { error: userError } = await supabase
+    .from("users")
+    .delete()
+    .eq("id", id);
+
+  if (userError) {
+    return res.status(500).json({
+      error: userError.message
+    });
+  }
+
+  res.json({
+    message: "User deleted successfully from records."
+  });
+});
 // ADMIN: Get QR logs
-app.get('/api/qr-logs', authMiddleware, (req: any, res: any) => {
+app.get('/api/qr-logs', authMiddleware, async (req: any, res: any) => {
   const user = req.user;
+
   if (user.role !== 'admin') {
     return res.status(403).json({ error: 'Admin access only' });
   }
-  const db = readDB();
-  res.json(db.qrLogs || []);
-});
 
+  const { data: qrLogs, error } = await supabase
+    .from("qr_logs")
+    .select("*")
+    .order("generated_at", { ascending: false });
+
+  if (error) {
+    return res.status(500).json({
+      error: error.message
+    });
+  }
+
+  res.json(qrLogs || []);
+});
 // WORKER: Direct accept or reject of available complaints (Technician Category Auto-Assignment)
 app.post('/api/complaints/:id/respond', authMiddleware, (req: any, res: any) => {
   const user = req.user;
@@ -1036,11 +1182,6 @@ app.post('/api/complaints/:id/respond', authMiddleware, (req: any, res: any) => 
     return res.status(400).json({ error: 'Response must be accept or reject' });
   }
 
-  const db = readDB();
-  const complaint = db.complaints.find((c: any) => c.id === id);
-  if (!complaint) {
-    return res.status(404).json({ error: 'Complaint not found.' });
-  }
 
   if (response === 'accept') {
     // Safety check - make sure it wasn't already accepted by someone else
@@ -1284,9 +1425,6 @@ app.get('/api/analytics', authMiddleware, (req: any, res: any) => {
     return res.status(403).json({ error: 'Admin access only' });
   }
 
-  const db = readDB();
-  const complaints = db.complaints;
-  const workers = db.workers;
 
   // Most common issues categories
   const categories: { [key: string]: number } = {};
