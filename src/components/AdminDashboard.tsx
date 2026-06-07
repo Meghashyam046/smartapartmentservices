@@ -139,6 +139,7 @@ fetch(`${API_URL}/api/admin/users`, { headers })
   {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${user.id}` }
+ }
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
