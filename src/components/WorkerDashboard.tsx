@@ -102,7 +102,7 @@ export default function WorkerDashboard({ user }: WorkerDashboardProps) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.id}`
+          'Authorization': `Bearer ${getToken()}`
         },
         body: JSON.stringify({ response: action })
       });
@@ -159,7 +159,7 @@ export default function WorkerDashboard({ user }: WorkerDashboardProps) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.id}`
+          'Authorization': `Bearer ${getToken()}`
         },
         body: JSON.stringify({ status: nextStatus })
       });
