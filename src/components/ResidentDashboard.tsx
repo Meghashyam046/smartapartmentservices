@@ -6,6 +6,17 @@ import {
 } from 'lucide-react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
+const getToken = () => {
+  try {
+    const auth = JSON.parse(
+      localStorage.getItem("securesociety_auth") || "{}"
+    );
+    return auth.token || "";
+  } catch {
+    return "";
+  }
+};
+
 interface ResidentDashboardProps {
   user: User;
   onRefreshProfiles: () => void;
@@ -75,7 +86,7 @@ fetch(`${API_URL}/api/complaints/resident`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.id}`
+          'Authorization': `Bearer ${getToken()}`
         },
         body: JSON.stringify({
           service_type: serviceType,
@@ -115,7 +126,7 @@ fetch(`${API_URL}/api/complaints/resident`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.id}`
+          'Authorization': `Bearer ${getToken()}`
         },
         body: JSON.stringify({
           description,
@@ -204,7 +215,7 @@ fetch(`${API_URL}/api/complaints/resident`, {
       const response = await fetch(
   `${API_URL}/api/complaints/${scanningComplaint.id}/qr-code`,
   {
-        headers: { 'Authorization': `Bearer ${user.id}` }
+        headers: { 'Authorization': `Bearer ${getToken()}` }
       });
       const data = await response.json();
       if (response.ok && data.rawPayload) {
@@ -227,7 +238,7 @@ fetch(`${API_URL}/api/complaints/resident`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.id}`
+          'Authorization': `Bearer ${getToken()}`
         },
         body: JSON.stringify({ status })
       });
@@ -255,7 +266,7 @@ fetch(`${API_URL}/api/complaints/resident`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.id}`
+          'Authorization': `Bearer ${getToken()}`
         },
         body: JSON.stringify({
           rating: selectedStars,
