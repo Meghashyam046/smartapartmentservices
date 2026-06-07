@@ -53,67 +53,70 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
 
   // Handle message communication from Google Sign-In popup
   useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      const origin = event.origin;
-      if (!origin.endsWith('.run.app') && !origin.includes('localhost') && !origin.includes('127.0.0.1')) {
-        return;
-      }
-      if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
-        setGoogleLoading(false);
-        setSuccessMsg('Google Authentication Completed Successfully.');
-        onLoginSuccess(event.data.user);
-      } else if (event.data?.type === 'OAUTH_AUTH_FAILURE') {
-        setGoogleLoading(false);
-        setErrorMsg(event.data.error || 'Google Authentication cancelled or failed.');
-      }
-    };
+    const ALLOWED_ORIGINS = [
+  "https://securesociety-smart-apartment-service.onrender.com",
+  "http://localhost:3000",
+];
+
+const handleMessage = (event: MessageEvent) => {
+  const origin = event.origin;
+
+  // ✅ secure whitelist check (REPLACE old logic completely)
+  if (!ALLOWED_ORIGINS.includes(origin)) return;
+
+  if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
+    setGoogleLoading(false);
+    setSuccessMsg('Google Authentication Completed Successfully.');
+    onLoginSuccess(event.data.user);
+  } 
+  else if (event.data?.type === 'OAUTH_AUTH_FAILURE') {
+    setGoogleLoading(false);
+    setErrorMsg(event.data.error || 'Google Authentication cancelled or failed.');
+  }
+};
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, [onLoginSuccess]);
 
-  const handleGoogleSignIn = async () => {
-    setGoogleLoading(true);
-    setErrorMsg('');
-    setSuccessMsg('');
-    try {
-      const queryParams = new URLSearchParams({
-        role: viewState === 'register' ? role : 'resident',
-        block: viewState === 'register' ? block : 'A',
-        floor: viewState === 'register' ? floor : '1',
-        door_no: viewState === 'register' ? doorNo : '101',
-        skill_type: viewState === 'register' ? skillType : 'Other',
-        phone: viewState === 'register' ? phone : '',
-        name: viewState === 'register' ? name : '',
-      });
+const handleGoogleSignIn = async () => {
+  setGoogleLoading(true);
+  setErrorMsg('');
+  setSuccessMsg('');
 
-      const response = await await fetch(
-  `${API_URL}/api/auth/google/url?${queryParams.toString()}`
-        );
-      if (!response.ok) {
-        throw new Error('Could not retrieve Google Sign-In URL from Gate Server.');
-      }
+  try {
 
-      const data = await response.json();
-      const width = 500;
-      const height = 650;
-      const left = window.screen.width / 2 - width / 2;
-      const top = window.screen.height / 2 - height / 2;
+    // ✅ 1. PUT HERE (FIRST)
+    const queryParams = new URLSearchParams({
+      role: viewState === 'register' ? role : 'resident',
+      block: viewState === 'register' ? block : 'A',
+      floor: viewState === 'register' ? floor : '1',
+      door_no: viewState === 'register' ? doorNo : '101',
+      skill_type: viewState === 'register' ? skillType : 'Other',
+      phone: viewState === 'register' ? phone : '',
+      name: viewState === 'register' ? name : '',
+    });
 
-      const popup = window.open(
-        data.url,
-        'google_oauth_popup',
-        `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,status=yes`
-      );
+    // ✅ 2. THEN API CALL
+    const response = await fetch(
+      `${API_URL}/api/auth/google/url?${queryParams.toString()}`
+    );
 
-      if (!popup) {
-        throw new Error('Popup blocked! Please allow popups in your browser to sign in with Google.');
-      }
-    } catch (err: any) {
-      setErrorMsg(err.message || 'An error occurred during Google Sign-In.');
-      setGoogleLoading(false);
-    }
-  };
+    const data = await response.json();
+
+    // ✅ 3. OPEN POPUP
+    window.open(data.url, 'google_oauth_popup');
+
+  } catch (err: any) {
+    setErrorMsg(err.message);
+  } finally {
+    setGoogleLoading(false);
+  }
+};
+
+  
+
+     
 
   // Handle URL detection for direct ?resetToken=xxx
   useEffect(() => {
