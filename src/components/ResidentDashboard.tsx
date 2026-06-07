@@ -52,9 +52,11 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
   const [feedbackComment, setFeedbackComment] = useState('');
 
   const loadComplaints = () => {
-fetch(`${API_URL}/api/complaints/resident`, {
-      headers: { 'Authorization': `Bearer ${user.id}` }
-    })
+  fetch(`${API_URL}/api/complaints/resident`, {
+    headers: {
+      Authorization: `Bearer ${getToken()}`
+    }
+  })
       .then(res => {
         if (!res.ok) throw new Error('Unauthenticated');
         return res.json();
