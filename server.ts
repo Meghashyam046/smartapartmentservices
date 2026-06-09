@@ -8,7 +8,6 @@ import jwt from "jsonwebtoken";
 import { GoogleGenAI } from '@google/genai';
 import { createServer as createViteServer } from 'vite';
 import { createClient } from "@supabase/supabase-js";
-const jwt = require('jsonwebtoken');
 
 export const supabase = createClient(
   process.env.SUPABASE_URL!,
