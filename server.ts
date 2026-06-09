@@ -545,6 +545,19 @@ await supabase.from("users").insert([user]);
   }
   
   const { password_hash, ...safeUser } = user;
+
+  // ADD THIS BLOCK
+const token = jwt.sign(
+  {
+    id: user.id,
+    email: user.email,
+    role: user.role
+  },
+  process.env.JWT_SECRET,
+  {
+    expiresIn: "7d"
+  }
+);
   
   res.send(`
     <html>
@@ -593,12 +606,19 @@ await supabase.from("users").insert([user]);
         <script>
           if (window.opener) {
             window.opener.postMessage({ 
-              type: 'OAUTH_AUTH_SUCCESS', 
-              user: ${JSON.stringify(safeUser)} 
-            }, '*');
+  type: 'OAUTH_AUTH_SUCCESS', 
+  user: ${JSON.stringify(safeUser)},
+  token: "${token}"
+}, '*');
             window.close();
           } else {
-            localStorage.setItem('securesociety_user', JSON.stringify(${JSON.stringify(safeUser)}));
+          localStorage.setItem(
+  'securesociety_auth',
+  JSON.stringify({
+    user: ${JSON.stringify(safeUser)},
+    token: "${token}"
+  })
+);
             window.location.href = '/';
           }
         </script>
