@@ -6,8 +6,6 @@ import {
   Star, Calendar, Filter, ChevronRight, MessageSquare, AlertTriangle 
 } from 'lucide-react';
 
-const API_URL = "https://securesociety-smart-apartment-service.onrender.com";
-
 interface WorkerDashboardProps {
   user: User;
 }
@@ -24,8 +22,6 @@ interface WorkerProfileMetrics {
 }
 
 export default function WorkerDashboard({ user }: WorkerDashboardProps) {
-  const getToken = () => localStorage.getItem("token");
-
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [loading, setLoading] = useState(true);
   const [profileMetrics, setProfileMetrics] = useState<WorkerProfileMetrics | null>(null);
@@ -55,14 +51,13 @@ export default function WorkerDashboard({ user }: WorkerDashboardProps) {
   const [qrLoading, setQrLoading] = useState(false);
 
   // Load complaints and worker metrics profile
-
-const headers = {
-  Authorization: `Bearer ${getToken()}`
-};      
+  const fetchWorkerData = async () => {
+    try {
+      const headers = { 'Authorization': `Bearer ${localStorage.getItem('securesociety_token')}` };
+      
       const [resComplaints, resProfile] = await Promise.all([
-        fetch(`${API_URL}/api/complaints/worker`, { headers }),
-        fetch(`${API_URL}/api/worker/profile`, { headers })
-
+        fetch('/api/complaints/worker', { headers }),
+        fetch('/api/worker/profile', { headers })
       ]);
 
       if (resComplaints.ok) {
@@ -100,11 +95,11 @@ const headers = {
   // Direct Category Accept & Release actions
   const handleRespondJob = async (complaintId: string, action: 'accept' | 'reject') => {
     try {
-      const response = await fetch(`${API_URL}/api/complaints/${complaintId}/respond`, {
+      const response = await fetch(`/api/complaints/${complaintId}/respond`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getToken()}`
+          'Authorization': `Bearer ${localStorage.getItem('securesociety_token')}`
         },
         body: JSON.stringify({ response: action })
       });
@@ -137,13 +132,9 @@ const headers = {
     setQrCodeURI(null);
     setQrPayload(null);
     try {
-      const getToken = () => localStorage.getItem("token");
-
-const res = await fetch(`${API_URL}/api/complaints/${job.id}/qr-code`, {
-  headers: {
-    'Authorization': `Bearer ${getToken()}`
-  }
-});
+      const res = await fetch(`/api/complaints/${job.id}/qr-code`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('securesociety_token')}` }
+      });
       const data = await res.json();
       if (res.ok) {
         setQrCodeURI(data.qrCodeDataUrl);
@@ -161,11 +152,11 @@ const res = await fetch(`${API_URL}/api/complaints/${job.id}/qr-code`, {
   // Progress job status (Accepted -> In Progress -> Completed)
   const handleUpdateStatus = async (complaintId: string, nextStatus: 'in_progress' | 'completed') => {
     try {
-      const res = await fetch(`${API_URL}/api/complaints/${complaintId}/status`, {
+      const res = await fetch(`/api/complaints/${complaintId}/status`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getToken()}`
+          'Authorization': `Bearer ${localStorage.getItem('securesociety_token')}`
         },
         body: JSON.stringify({ status: nextStatus })
       });
@@ -224,7 +215,7 @@ const res = await fetch(`${API_URL}/api/complaints/${job.id}/qr-code`, {
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-extrabold text-indigo-650 uppercase tracking-widest bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-md">
-              Smart Apartment Worker Pass
+              SecureSociety Worker Pass
             </span>
             {isClockedIn && (
               <span className="text-[9px] bg-emerald-50 text-emerald-700 font-extrabold px-1.5 py-0.5 rounded uppercase border border-emerald-100">
@@ -614,12 +605,12 @@ const res = await fetch(`${API_URL}/api/complaints/${job.id}/qr-code`, {
 
                           {/* Present entry QR Code Badge key pass to occupants */}
                           <button
-  onClick={() => handleShowQR(job)}
-  className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm py-3 rounded-xl shadow-md cursor-pointer transition active:scale-95 flex items-center justify-center gap-2"
->
-  <ShieldCheck className="w-4 h-4 shrink-0" />
-  Display Security QR
-</button>
+                            onClick={() => handleShowQR(job)}
+                            className="flex-1 bg-indigo-650 hover:bg-indigo-750 border border-transparent text-white font-extrabold text-xs py-2.5 rounded-xl shadow-md cursor-pointer transition active:scale-95 flex items-center justify-center gap-1.5 animate-pulse"
+                          >
+                            <ShieldCheck className="w-4 h-4 shrink-0" />
+                            Display Security Pass QR
+                          </button>
                         </div>
 
                         {/* Resident scanner gate warnings */}
@@ -659,12 +650,11 @@ const res = await fetch(`${API_URL}/api/complaints/${job.id}/qr-code`, {
                         </div>
 
                         <button
-  onClick={() => handleUpdateStatus(job.id, 'completed')}
-  className="w-full inline-flex items-center justify-center gap-1.5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-lg transition duration-150 cursor-pointer"
->
-  <CheckSquare className="w-4 h-4" />
-  Mark as Resolved
-</button>
+                          onClick={() => handleUpdateStatus(job.id, 'completed')}
+                          className="w-full inline-flex items-center justify-center gap-1.5 py-3 bg-emerald-650 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-lg transition duration-150 cursor-pointer uppercase tracking-wider"
+                        >
+                          <CheckSquare className="w-4 h-4" /> Mark as Repair Resolved
+                        </button>
                       </div>
                     )}
 
@@ -672,7 +662,7 @@ const res = await fetch(`${API_URL}/api/complaints/${job.id}/qr-code`, {
                     {job.status === 'completed' && (
                       <div className="bg-emerald-50 text-emerald-800 p-3 rounded-xl border border-emerald-150 text-xs font-semibold flex items-center justify-between border-t pt-3">
                         <span className="font-bold flex items-center gap-1">
-                          <BadgeCheck className="w-4.5 h-4.5 text-emerald-600" /> Service Completed Successfully
+                          <BadgeCheck className="w-4.5 h-4.5 text-emerald-600" /> Job Completed successfully
                         </span>
                         {job.rating && (
                           <span className="font-extrabold flex items-center gap-1 text-amber-500 bg-white border px-2.5 py-1 rounded-lg text-[11px] shadow-sm">
