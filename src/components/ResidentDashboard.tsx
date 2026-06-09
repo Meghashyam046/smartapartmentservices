@@ -1,27 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { User, Complaint } from '../types';
-import {  
+import { 
   AlertTriangle, Hammer, Wrench, Sparkles, Send, CheckCircle, 
   Clock, Scan, ArrowRight, Star, HeartHandshake, ShieldAlert, X
 } from 'lucide-react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
-const getToken = () => {
-  try {
-    const auth = JSON.parse(
-      localStorage.getItem("securesociety_auth") || "{}"
-    );
-    return auth.token || "";
-  } catch {
-    return "";
-  }
-};
-
 interface ResidentDashboardProps {
   user: User;
   onRefreshProfiles: () => void;
 }
-const API_URL = "https://securesociety-smart-apartment-service.onrender.com";
 
 export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentDashboardProps) {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
@@ -52,11 +40,9 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
   const [feedbackComment, setFeedbackComment] = useState('');
 
   const loadComplaints = () => {
-  fetch(`${API_URL}/api/complaints/resident`, {
-    headers: {
-      Authorization: `Bearer ${getToken()}`
-    }
-  })
+    fetch('/api/complaints/resident', {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('securesociety_token')}` }
+    })
       .then(res => {
         if (!res.ok) throw new Error('Unauthenticated');
         return res.json();
@@ -84,11 +70,11 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
     setErrorMsg('');
 
     try {
-      const response = await fetch(`${API_URL}/api/complaints`, {
+      const response = await fetch('/api/complaints', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getToken()}`
+          'Authorization': `Bearer ${localStorage.getItem('securesociety_token')}`
         },
         body: JSON.stringify({
           service_type: serviceType,
@@ -124,11 +110,11 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
     setAiLoading(true);
     setAiAdvice(null);
     try {
-      const response = await fetch(`${API_URL}/api/ai/diagnose`, {
+      const response = await fetch('/api/ai/diagnose', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getToken()}`
+          'Authorization': `Bearer ${localStorage.getItem('securesociety_token')}`
         },
         body: JSON.stringify({
           description,
@@ -214,10 +200,8 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
   const handleSimulateQRScan = async () => {
     if (!scanningComplaint) return;
     try {
-      const response = await fetch(
-  `${API_URL}/api/complaints/${scanningComplaint.id}/qr-code`,
-  {
-        headers: { 'Authorization': `Bearer ${getToken()}` }
+      const response = await fetch(`/api/complaints/${scanningComplaint.id}/qr-code`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('securesociety_token')}` }
       });
       const data = await response.json();
       if (response.ok && data.rawPayload) {
@@ -234,13 +218,11 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
   const handleVerifyWorker = async (status: 'verified' | 'rejected') => {
     if (!scanningComplaint) return;
     try {
-      const res = await fetch(
-  `${API_URL}/api/complaints/${scanningComplaint.id}/verify-worker`,
-  {
+      const res = await fetch(`/api/complaints/${scanningComplaint.id}/verify-worker`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getToken()}`
+          'Authorization': `Bearer ${localStorage.getItem('securesociety_token')}`
         },
         body: JSON.stringify({ status })
       });
@@ -262,13 +244,11 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
     if (!ratingComplaint) return;
 
     try {
-      const res = await fetch(
-  `${API_URL}/api/complaints/${ratingComplaint.id}/feedback`,
-  {
+      const res = await fetch(`/api/complaints/${ratingComplaint.id}/feedback`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getToken()}`
+          'Authorization': `Bearer ${localStorage.getItem('securesociety_token')}`
         },
         body: JSON.stringify({
           rating: selectedStars,
@@ -367,7 +347,8 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
                   disabled={aiLoading || !description.trim()}
                   className="inline-flex items-center gap-1 text-[11px] text-indigo-650 hover:text-indigo-850 disabled:text-slate-350 font-extrabold transition-all duration-150 uppercase tracking-wider"
                 >
-                  
+                  <Sparkles className={`w-3.5 h-3.5 ${aiLoading ? 'animate-spin' : ''}`} />
+                  AI Troubleshooter
                 </button>
               </div>
               <textarea
@@ -418,7 +399,7 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
               className="w-full inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white p-3 rounded-lg text-xs font-bold shadow-md transition-all duration-150 active:scale-98 disabled:bg-slate-300 cursor-pointer uppercase tracking-wider"
             >
               <Send className="w-3.5 h-3.5" />
-              {isSubmitting ? 'Raising Ticket...' : 'File Complaint'}
+              {isSubmitting ? 'Raising Ticket...' : 'File Ticket with Control Room'}
             </button>
           </form>
 
@@ -501,7 +482,7 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
                   {c.status === 'pending' && (
                     <div className="bg-slate-50 px-3.5 py-3 rounded-lg border border-slate-100 text-slate-500 text-xs flex items-center gap-2.5 font-bold">
                       <Clock className="w-4 h-4 text-slate-400 shrink-0" />
-                      Status: Pending Acceptance. The complaint has been sent to a worker and is awaiting acceptance.
+                      Status: Queued. Society supervisors are vetting assignments.
                     </div>
                   )}
 
@@ -519,7 +500,7 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
                             />
                           </div>
                           <div>
-                            <span className="block text-[8px] text-indigo-650 uppercase font-bold tracking-wider">Accepted by Worke</span>
+                            <span className="block text-[8px] text-indigo-650 uppercase font-bold tracking-wider">Assigned Contractor</span>
                             <div className="text-xs font-black text-slate-800 leading-tight">
                               {c.assigned_worker_name || 'Amir Khan'}
                             </div>
@@ -544,7 +525,7 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
                         <div className="bg-indigo-50 border border-indigo-100 text-indigo-805 p-3 rounded-lg space-y-2 animate-fadeIn">
                           <div className="flex items-center gap-1.5 text-xs font-black text-indigo-900 uppercase tracking-wide">
                             <ShieldAlert className="w-4 h-4 text-indigo-600 shrink-0" />
-                            Safety Inspection Required
+                            Lock Check Required for Society Safety
                           </div>
                           <p className="text-[11px] text-slate-600 font-semibold leading-relaxed">
                             Worker is en route. For complete confidence, tap below and verify the digital QR badge displayed on the worker's device when they knock.
@@ -568,7 +549,7 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
                         Technician Active in Unit (QR Access Match Verified)
                       </div>
                       <p className="text-[11px] text-emerald-700 font-semibold">
-                        Worker verification stamp logged successfully. Worker is currently fixing issues inside your home.
+                        Supervisor verification stamp logged successfully. Worker is currently fixing issues inside your home.
                       </p>
                     </div>
                   )}
@@ -672,7 +653,7 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
                   type="submit"
                   className="px-4 py-2 bg-slate-900 border border-transparent hover:bg-slate-800 text-white font-bold rounded-xl shadow transition cursor-pointer"
                 >
-                  Submit Rating
+                  Submit Star Verdict
                 </button>
               </div>
             </form>
@@ -716,7 +697,7 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
                     className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 border border-transparent text-white font-bold text-xs rounded-xl shadow hover:bg-blue-700 hover:shadow-md transition active:scale-95 cursor-pointer"
                   >
                     <Sparkles className="w-4 h-4 hover:animate-spin" />
-                    Sandbox Simulator: Scan QR Details
+                    Sandbox Simulator: Auto-Scan QR Details
                   </button>
                 </div>
               )}
@@ -763,7 +744,7 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
                   <div className="bg-indigo-50 border border-indigo-100 p-3 rounded-xl text-slate-700 text-xs font-medium space-y-1">
                     <div className="text-indigo-900 font-bold">Resident Identity Attestation:</div>
                     <p className="text-[11px] text-indigo-700">
-                      Does the technician's uniform and identity match the security details displayed on your screen?
+                      Does the physical repair worker's photograph, uniform, and voice match the security details on your screen?
                     </p>
                   </div>
 
