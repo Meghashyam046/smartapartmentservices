@@ -8,10 +8,8 @@ import {
 } from 'lucide-react';
 
 interface AuthPageProps {
-  onLoginSuccess: (user: User) => void;
+  onLoginSuccess: (user: User, token: string) => void;
 }
-const API_URL = "https://securesociety-smart-apartment-service.onrender.com";
-
 
 export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
   // viewState can be 'login' | 'register' | 'forgot' | 'reset'
@@ -53,70 +51,65 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
 
   // Handle message communication from Google Sign-In popup
   useEffect(() => {
-    const ALLOWED_ORIGINS = [
-  "https://securesociety-smart-apartment-service.onrender.com",
-  "http://localhost:3000",
-];
-
-const handleMessage = (event: MessageEvent) => {
-  const origin = event.origin;
-
-  // ✅ secure whitelist check (REPLACE old logic completely)
-  if (!ALLOWED_ORIGINS.includes(origin)) return;
-
-  if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
-    setGoogleLoading(false);
-    setSuccessMsg('Google Authentication Completed Successfully.');
-    onLoginSuccess(event.data.user);
-  } 
-  else if (event.data?.type === 'OAUTH_AUTH_FAILURE') {
-    setGoogleLoading(false);
-    setErrorMsg(event.data.error || 'Google Authentication cancelled or failed.');
-  }
-};
+    const handleMessage = (event: MessageEvent) => {
+      const origin = event.origin;
+      if (!origin.endsWith('.run.app') && !origin.includes('localhost') && !origin.includes('127.0.0.1')) {
+        return;
+      }
+      if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
+        setGoogleLoading(false);
+        setSuccessMsg('Google Authentication Completed Successfully.');
+        onLoginSuccess(event.data.user, event.data.token);
+      } else if (event.data?.type === 'OAUTH_AUTH_FAILURE') {
+        setGoogleLoading(false);
+        setErrorMsg(event.data.error || 'Google Authentication cancelled or failed.');
+      }
+    };
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, [onLoginSuccess]);
 
-const handleGoogleSignIn = async () => {
-  setGoogleLoading(true);
-  setErrorMsg('');
-  setSuccessMsg('');
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+    setErrorMsg('');
+    setSuccessMsg('');
+    try {
+      const queryParams = new URLSearchParams({
+        role: viewState === 'register' ? role : 'resident',
+        block: viewState === 'register' ? block : 'A',
+        floor: viewState === 'register' ? floor : '1',
+        door_no: viewState === 'register' ? doorNo : '101',
+        skill_type: viewState === 'register' ? skillType : 'Other',
+        phone: viewState === 'register' ? phone : '',
+        name: viewState === 'register' ? name : '',
+      });
 
-  try {
+      const response = await fetch(`/api/auth/google/url?${queryParams.toString()}`);
+      if (!response.ok) {
+        throw new Error('Could not retrieve Google Sign-In URL from Gate Server.');
+      }
 
-    // ✅ 1. PUT HERE (FIRST)
-    const queryParams = new URLSearchParams({
-      role: viewState === 'register' ? role : 'resident',
-      block: viewState === 'register' ? block : 'A',
-      floor: viewState === 'register' ? floor : '1',
-      door_no: viewState === 'register' ? doorNo : '101',
-      skill_type: viewState === 'register' ? skillType : 'Other',
-      phone: viewState === 'register' ? phone : '',
-      name: viewState === 'register' ? name : '',
-    });
+      const data = await response.json();
+      const width = 500;
+      const height = 650;
+      const left = window.screen.width / 2 - width / 2;
+      const top = window.screen.height / 2 - height / 2;
 
-    // ✅ 2. THEN API CALL
-    const response = await fetch(
-      `${API_URL}/api/auth/google/url?${queryParams.toString()}`
-    );
+      const popup = window.open(
+        data.url,
+        'google_oauth_popup',
+        `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,status=yes`
+      );
 
-    const data = await response.json();
-
-    // ✅ 3. OPEN POPUP
-    window.open(data.url, 'google_oauth_popup');
-
-  } catch (err: any) {
-    setErrorMsg(err.message);
-  } finally {
-    setGoogleLoading(false);
-  }
-};
-
-  
-
-     
+      if (!popup) {
+        throw new Error('Popup blocked! Please allow popups in your browser to sign in with Google.');
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'An error occurred during Google Sign-In.');
+      setGoogleLoading(false);
+    }
+  };
 
   // Handle URL detection for direct ?resetToken=xxx
   useEffect(() => {
@@ -158,7 +151,7 @@ const handleGoogleSignIn = async () => {
     setErrorMsg('');
     setSuccessMsg('');
     try {
-      const response = await fetch(`${API_URL}/api/auth/login`, {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: loginEmail, password: loginPassword })
@@ -170,7 +163,7 @@ const handleGoogleSignIn = async () => {
       }
 
       setSuccessMsg('Successfully Authorized.');
-      onLoginSuccess(data.user);
+      onLoginSuccess(data.user, data.token);
     } catch (err: any) {
       setErrorMsg(err.message || 'Incorrect credentials or verification failure.');
     } finally {
@@ -202,7 +195,7 @@ const handleGoogleSignIn = async () => {
     setErrorMsg('');
     setSuccessMsg('');
     try {
-      const response = await fetch(`${API_URL}/api/auth/register`, {
+      const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -225,7 +218,7 @@ const handleGoogleSignIn = async () => {
 
       setSuccessMsg(`Welcome, ${name}! Your secure profile is initialised.`);
       setTimeout(() => {
-        onLoginSuccess(data.user);
+        onLoginSuccess(data.user, data.token);
       }, 700);
     } catch (err: any) {
       setErrorMsg(err.message || 'Critical Registration Failure.');
@@ -248,7 +241,7 @@ const handleGoogleSignIn = async () => {
     setSimulatedInbox(null);
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/forgot-password`, {
+      const response = await fetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: forgotEmail.trim() })
@@ -259,14 +252,12 @@ const handleGoogleSignIn = async () => {
         throw new Error(data.error || 'Failed to verify email address.');
       }
 
-      setSuccessMsg('Verification successful. Continue to reset your password.');
-
-setSimulatedInbox({
-  token: data.resetToken,
-  link: data.resetLink,
-  email: data.email
-});
-      
+      setSuccessMsg('Verfied! Reset instructions generated.');
+      setSimulatedInbox({
+        token: data.resetToken,
+        link: data.resetLink,
+        email: data.email
+      });
     } catch (err: any) {
       setErrorMsg(err.message || 'An error occurred during verification.');
     } finally {
@@ -278,7 +269,7 @@ setSimulatedInbox({
   const handleResetPasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!resetToken.trim()) {
-      setErrorMsg('Reset token is required.');
+      setErrorMsg('Please specify your password reset token.');
       return;
     }
     if (!newPassword) {
@@ -299,7 +290,7 @@ setSimulatedInbox({
     setSuccessMsg('');
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/reset-password`, {
+      const response = await fetch('/api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: resetToken.trim(), password: newPassword })
@@ -343,12 +334,12 @@ setSimulatedInbox({
       <div className="text-center space-y-2">
         <div className="inline-flex items-center gap-1.5 text-slate-900 bg-slate-100 border border-slate-200 px-3 py-1 rounded-full text-xs font-bold font-sans">
           <KeyRound className="w-3.5 h-3.5 text-indigo-505 animate-pulse" />
-          Smart Apartment Authorized Access
+          SecureSociety Authorized Access
         </div>
         <h2 className="text-2xl font-black font-sans text-slate-900 tracking-tight">Smart Apartment Services</h2>
         <p className="text-xs text-slate-500 max-w-xs mx-auto leading-normal">
           {viewState === 'login' && 'Log in or reset to manage complaints, technicians, and entry verification.'}
-          {viewState === 'register' && 'Register a new apartment resident user or technical worker or admin account.'}
+          {viewState === 'register' && 'Register a new apartment resident or technical worker account.'}
           {viewState === 'forgot' && 'Submit your email to receive a secure login reset validation token.'}
           {viewState === 'reset' && 'Reset your password to standard SecureSociety credentials.'}
         </p>
@@ -455,7 +446,7 @@ setSimulatedInbox({
             disabled={loading}
             className="w-full inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-3.5 rounded-xl shadow-lg transition active:scale-95 cursor-pointer disabled:bg-slate-400"
           >
-            <span>Log In</span>
+            <span>Authorized Log In</span>
             <ArrowRight className="w-4 h-4" />
           </button>
 
@@ -464,7 +455,7 @@ setSimulatedInbox({
               <span className="w-full border-t border-slate-200" />
             </div>
             <div className="relative flex justify-center text-[10px] uppercase font-black tracking-widest">
-              <span className="bg-white px-3 text-slate-400">Or Continue with Google</span>
+              <span className="bg-white px-3 text-slate-400">Or credentials context</span>
             </div>
           </div>
 
@@ -541,7 +532,7 @@ setSimulatedInbox({
                     : 'border-slate-150 text-slate-450 hover:bg-slate-50'
                 }`}
               >
-                 Admin
+                Society Admin
               </button>
             </div>
           </div>
@@ -691,30 +682,14 @@ setSimulatedInbox({
             </div>
           )}
 
-          {role === 'worker' && (
-            <div>
-              <label className="block text-[11px] uppercase tracking-wide font-extrabold text-slate-450 mb-1">
-                Technician Certified Skill
-              </label>
-              <select
-                value={skillType}
-                onChange={(e) => setSkillType(e.target.value as any)}
-                className="w-full text-sm border border-slate-200 p-3 rounded-xl text-slate-800 font-medium bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 cursor-pointer"
-              >
-                <option value="Electrician">🔌 Certified Electrician</option>
-                <option value="Plumber">🚰 Licensed Plumber</option>
-                <option value="Carpenter">🪚 Professional Carpenter</option>
-                <option value="Other">🛠️ General Maintenance Staff</option>
-              </select>
-            </div>
-          )}
+
 
           <button
             type="submit"
             disabled={loading}
             className="w-full bg-slate-900 hover:bg-slate-850 text-white font-bold text-xs py-3 rounded-xl px-4 shadow shadow-md transition active:scale-95 gap-2 inline-flex items-center justify-center cursor-pointer disabled:bg-slate-400"
           >
-            <span>Register</span>
+            <span>Register & Initialize Profile</span>
             <ArrowRight className="w-4 h-4" />
           </button>
 
@@ -723,7 +698,7 @@ setSimulatedInbox({
               <span className="w-full border-t border-slate-200" />
             </div>
             <div className="relative flex justify-center text-[10px] uppercase font-black tracking-widest">
-              <span className="bg-white px-3 text-slate-400">Or Continue with Google</span>
+              <span className="bg-white px-3 text-slate-400">Or credentials context</span>
             </div>
           </div>
 
@@ -796,7 +771,7 @@ setSimulatedInbox({
             <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-2xl space-y-3 mt-4 animate-fadeIn">
               <div className="flex items-center gap-1.5 text-indigo-850 font-black uppercase text-[10px] tracking-widest border-b border-indigo-100 pb-1.5">
                 <Mail className="w-4 h-4 text-indigo-600 animate-bounce" />
-                PASSWORD RESET VERIFICATION
+                Simulated Email Inbox Redirect
               </div>
               <div className="text-xs text-indigo-950 font-medium leading-relaxed font-sans mt-1">
                 <p>We simulated sending the reset token to <strong className="font-mono text-indigo-700">{simulatedInbox.email}</strong>.</p>
@@ -819,7 +794,7 @@ setSimulatedInbox({
                     }}
                     className="w-full text-center inline-block py-2 bg-indigo-600 hover:bg-indigo-750 text-white text-[11px] font-extrabold rounded-xl shadow-sm transition active:scale-95 uppercase tracking-wide hover:no-underline"
                   >
-                    Continue to Password Reset
+                    Open Password Reset Form &rarr;
                   </a>
                 </div>
               </div>
@@ -848,7 +823,7 @@ setSimulatedInbox({
         <form onSubmit={handleResetPasswordSubmit} className="space-y-4 animate-fadeIn">
           <div>
             <label className="block text-[11px] uppercase tracking-wide font-extrabold text-slate-450 mb-1">
-              CONTINUE TO RESET PASSWORD
+              Reset Security Token
             </label>
             <div className="relative">
               <KeyRound className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
