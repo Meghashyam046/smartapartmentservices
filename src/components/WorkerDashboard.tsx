@@ -24,6 +24,8 @@ interface WorkerProfileMetrics {
 }
 
 export default function WorkerDashboard({ user }: WorkerDashboardProps) {
+  const getToken = () => localStorage.getItem("token");
+
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [loading, setLoading] = useState(true);
   const [profileMetrics, setProfileMetrics] = useState<WorkerProfileMetrics | null>(null);
@@ -53,10 +55,10 @@ export default function WorkerDashboard({ user }: WorkerDashboardProps) {
   const [qrLoading, setQrLoading] = useState(false);
 
   // Load complaints and worker metrics profile
-  const fetchWorkerData = async () => {
-    try {
-      const headers = { 'Authorization': `Bearer ${user.id}` };
-      
+
+const headers = {
+  Authorization: `Bearer ${getToken()}`
+};      
       const [resComplaints, resProfile] = await Promise.all([
         fetch(`${API_URL}/api/complaints/worker`, { headers }),
         fetch(`${API_URL}/api/worker/profile`, { headers })
@@ -135,9 +137,13 @@ export default function WorkerDashboard({ user }: WorkerDashboardProps) {
     setQrCodeURI(null);
     setQrPayload(null);
     try {
-      const res = await fetch(`${API_URL}/api/complaints/${job.id}/qr-code`,  {
-        headers: { 'Authorization': `Bearer ${user.id}` }
-      });
+      const getToken = () => localStorage.getItem("token");
+
+const res = await fetch(`${API_URL}/api/complaints/${job.id}/qr-code`, {
+  headers: {
+    'Authorization': `Bearer ${getToken()}`
+  }
+});
       const data = await res.json();
       if (res.ok) {
         setQrCodeURI(data.qrCodeDataUrl);
