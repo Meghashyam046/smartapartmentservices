@@ -5,8 +5,6 @@ import {
   BarChart4, Clock, Star, X, Trash2, Fingerprint, FileText, 
   CheckCheck, Building, RefreshCw, Sparkles, Home 
 } from 'lucide-react';
-const API_URL = import.meta.env.VITE_API_URL;
-
 
 interface AdminDashboardProps {
   user: User;
@@ -77,15 +75,14 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
 
   const loadAdminData = async () => {
     try {
-      const headers = { 'Authorization': `Bearer ${user.id}` };
+      const headers = { 'Authorization': `Bearer ${localStorage.getItem('securesociety_token')}` };
 
       const [resComplaints, resWorkers, resAnalytics, resQrLogs, resUsers] = await Promise.all([
-
-fetch(`${API_URL}/api/complaints/admin`, { headers }),
-fetch(`${API_URL}/api/workers/admin`, { headers }),
-fetch(`${API_URL}/api/analytics`, { headers }),
-fetch(`${API_URL}/api/qr-logs`, { headers }),
-fetch(`${API_URL}/api/admin/users`, { headers })
+        fetch('/api/complaints/admin', { headers }),
+        fetch('/api/workers/admin', { headers }),
+        fetch('/api/analytics', { headers }),
+        fetch('/api/qr-logs', { headers }),
+        fetch('/api/admin/users', { headers })
       ]);
 
       if (resComplaints.ok) {
@@ -134,12 +131,9 @@ fetch(`${API_URL}/api/admin/users`, { headers })
     }
 
     try {
-      const res = await fetch(
-  `${API_URL}/api/admin/users/${targetUserId}`,
-  {
+      const res = await fetch(`/api/admin/users/${targetUserId}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${user.id}` }
- }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('securesociety_token')}` }
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -158,11 +152,11 @@ fetch(`${API_URL}/api/admin/users`, { headers })
     try {
       const issueSummary = complaints.map(c => `Category: ${c.service_type}. Detail: ${c.description}. Location: Block ${c.block}. Status: ${c.status}`).join('\n');
       
-      const response = await fetch(`${API_URL}/api/ai/diagnose`, {
+      const response = await fetch('/api/ai/diagnose', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getToken()}`
+          'Authorization': `Bearer ${localStorage.getItem('securesociety_token')}`
         },
         body: JSON.stringify({
           service_type: 'Society Manager Preventive Report',
@@ -684,7 +678,7 @@ fetch(`${API_URL}/api/admin/users`, { headers })
                             <span>⚙️ Sector: {u.skill_type || 'General Specialist'}</span>
                           </p>
                         ) : (
-                          <p className="text-[10px] text-slate-400 italic">Apartment Admin Controller</p>
+                          <p className="text-[10px] text-slate-400 italic">Global Society Admin Controller</p>
                         )}
                       </div>
                     </div>
