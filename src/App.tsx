@@ -19,24 +19,31 @@ export default function App() {
   // Load user session on boot
   useEffect(() => {
     const saved = localStorage.getItem('securesociety_user');
-    if (saved) {
+    const token = localStorage.getItem('securesociety_token');
+    if (saved && token) {
       try {
         setCurrentUser(JSON.parse(saved));
       } catch (err) {
         localStorage.removeItem('securesociety_user');
+        localStorage.removeItem('securesociety_token');
       }
+    } else {
+      localStorage.removeItem('securesociety_user');
+      localStorage.removeItem('securesociety_token');
     }
     setLoading(false);
   }, []);
 
-  const handleLoginSuccess = (user: User) => {
+  const handleLoginSuccess = (user: User, token: string) => {
     localStorage.setItem('securesociety_user', JSON.stringify(user));
+    localStorage.setItem('securesociety_token', token);
     setCurrentUser(user);
     setPanicActive(false);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('securesociety_user');
+    localStorage.removeItem('securesociety_token');
     setCurrentUser(null);
     setPanicActive(false);
   };
@@ -96,7 +103,7 @@ export default function App() {
                   <span>Interactive Dashboard</span>
                 </button>
                 <div className="text-[10px] text-slate-450 p-2.5 leading-normal bg-slate-800/40 rounded-xl mt-4 font-medium border border-slate-800">
-                  <span className="text-white font-bold block mb-0.5">Quick Hint</span> Create tickets on the panel, provide preventive checks.
+                  <span className="text-white font-bold block mb-0.5">Quick Hint</span> Create tickets on the panel, and let AI provide preventive checks.
                 </div>
               </div>
             )}
@@ -190,7 +197,7 @@ export default function App() {
             ) : (
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-indigo-650 animate-pulse" />
-                <span className="text-sm font-bold text-slate-855 font-display">Secure Smart Apartment Management System</span>
+                <span className="text-sm font-bold text-slate-855 font-display">SecureSociety Gate Console</span>
               </div>
             )}
           </div>
@@ -232,7 +239,7 @@ export default function App() {
                       </div>
                       <div className="p-2 bg-slate-50 rounded-lg flex gap-2">
                         <span className="w-1.5 h-1.5 bg-indigo-505 rounded-full mt-1 shrink-0"></span>
-                        <p>Troubleshooting system synced with service logs.</p>
+                        <p>AI troubleshooting models synced with direct society logs.</p>
                       </div>
                     </div>
                   </div>
@@ -259,7 +266,7 @@ export default function App() {
               </div>
             ) : (
               <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-400 font-semibold bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
-                <Landmark className="w-4 h-4 text-emerald-600" /> Apartment Community
+                <Landmark className="w-4 h-4 text-emerald-600" /> Block Gated Community
               </div>
             )}
           </div>
@@ -334,4 +341,3 @@ export default function App() {
     // Session state sync callback inside society ledger
   }
 }
-
