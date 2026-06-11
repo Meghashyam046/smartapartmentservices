@@ -85,10 +85,20 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
         name: viewState === 'register' ? name : '',
       });
 
-      const response = await fetch(`/api/auth/google/url?${queryParams.toString()}`);
-      if (!response.ok) {
-        throw new Error('Could not retrieve Google Sign-In URL from Gate Server.');
-      }
+     const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://securesociety-smart-apartment-service.onrender.com";
+
+const response = await fetch(
+  `${API_URL}/api/auth/google/url?${queryParams.toString()}`
+);
+
+if (!response.ok) {
+  const errorText = await response.text();
+  throw new Error(
+    `Google URL API Failed: ${response.status} - ${errorText}`
+  );
+}
 
       const data = await response.json();
       const width = 500;
@@ -151,7 +161,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
     setErrorMsg('');
     setSuccessMsg('');
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: loginEmail, password: loginPassword })
@@ -195,7 +205,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
     setErrorMsg('');
     setSuccessMsg('');
     try {
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -241,8 +251,8 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
     setSimulatedInbox(null);
 
     try {
-      const response = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
+const response = await fetch(`${API_URL}/api/auth/forgot-password`, {
+  method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: forgotEmail.trim() })
       });
@@ -290,7 +300,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
     setSuccessMsg('');
 
     try {
-      const response = await fetch('/api/auth/reset-password', {
+      const response = await fetch(`${API_URL}/api/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: resetToken.trim(), password: newPassword })
