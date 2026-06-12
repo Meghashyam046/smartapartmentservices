@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, UserRole } from '../types';
+import { useNavigate } from "react-router-dom";
 import { 
   Lock, Mail, User as UserIcon, Building, Phone, 
   KeyRound, ShieldAlert, Hammer, ArrowRight, 
@@ -10,6 +11,11 @@ import {
 interface AuthPageProps {
   onLoginSuccess: (user: User, token: string) => void;
 }
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://securesociety-smart-apartment-service.onrender.com";
+
+const navigate = useNavigate();
 
 export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
   // viewState can be 'login' | 'register' | 'forgot' | 'reset'
@@ -56,15 +62,19 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
       if (!origin.endsWith('.run.app') && !origin.includes('localhost') && !origin.includes('127.0.0.1')) {
         return;
       }
-      if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
-        setGoogleLoading(false);
-        setSuccessMsg('Google Authentication Completed Successfully.');
-        onLoginSuccess(event.data.user, event.data.token);
-      } else if (event.data?.type === 'OAUTH_AUTH_FAILURE') {
-        setGoogleLoading(false);
-        setErrorMsg(event.data.error || 'Google Authentication cancelled or failed.');
-      }
-    };
+     if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
+  setGoogleLoading(false);
+  setSuccessMsg('Google Authentication Completed Successfully.');
+
+  onLoginSuccess(event.data.user, event.data.token);
+
+  // ✅ ADD THIS REDIRECT
+  const role = event.data.user.role;
+
+  if (role === "resident") navigate("/resident");
+  else if (role === "worker") navigate("/worker");
+  else if (role === "admin") navigate("/admin");
+}
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
@@ -85,9 +95,6 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
         name: viewState === 'register' ? name : '',
       });
 
-     const API_URL =
-  import.meta.env.VITE_API_URL ||
-  "https://securesociety-smart-apartment-service.onrender.com";
 
 const response = await fetch(
   `${API_URL}/api/auth/google/url?${queryParams.toString()}`
