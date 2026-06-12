@@ -73,9 +73,13 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
       const response = await fetch(`${API_URL}/api/complaints', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('securesociety_token')}`
-        },
+  'Content-Type': 'application/json',
+  'Authorization': `Bearer ${
+    typeof window !== 'undefined'
+      ? localStorage.getItem('securesociety_token')
+      : ''
+  }`
+}
         body: JSON.stringify({
           service_type: serviceType,
           description,
