@@ -35,11 +35,12 @@ export default function App() {
   }, []);
 
   const handleLoginSuccess = (user: User, token: string) => {
-    localStorage.setItem('securesociety_user', JSON.stringify(user));
-    localStorage.setItem('securesociety_token', token);
-    setCurrentUser(user);
-    setPanicActive(false);
-  };
+  localStorage.setItem('securesociety_user', JSON.stringify(user));
+  localStorage.setItem('securesociety_token', token);
+
+  setCurrentUser(user);
+  setLoading(false); // 
+};
 
   const handleLogout = () => {
     localStorage.removeItem('securesociety_user');
