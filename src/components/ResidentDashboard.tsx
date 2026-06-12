@@ -70,24 +70,24 @@ export default function ResidentDashboard({ user, onRefreshProfiles }: ResidentD
     setErrorMsg('');
 
     try {
-      const response = await fetch(`${API_URL}/api/complaints', {
-        method: 'POST',
-        headers: {
-  'Content-Type': 'application/json',
-  'Authorization': `Bearer ${
-    typeof window !== 'undefined'
-      ? localStorage.getItem('securesociety_token')
-      : ''
-  }`
-}
-        body: JSON.stringify({
-          service_type: serviceType,
-          description,
-          block,
-          floor,
-          door_no: doorNo
-        })
-      });
+      const response = await fetch(`${API_URL}/api/complaints`, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${
+      typeof window !== 'undefined'
+        ? localStorage.getItem('securesociety_token')
+        : ''
+    }`
+  },
+  body: JSON.stringify({
+    service_type: serviceType,
+    description,
+    block,
+    floor,
+    door_no: doorNo
+  })
+});
 
       const data = await response.json();
       if (!response.ok) {
