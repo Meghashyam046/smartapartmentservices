@@ -111,18 +111,6 @@ function validatePassword(password: string): { valid: boolean; error?: string } 
   return { valid: true };
 }
 
-// Initialize Gemini
-let ai: GoogleGenAI | null = null;
-if (process.env.GEMINI_API_KEY) {
-  ai = new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY,
-    httpOptions: {
-      headers: {
-        'User-Agent': 'aistudio-build',
-      }
-    }
-  });
-}
 
 // Ensure database file exits or seed it
 function getInitialData() {
