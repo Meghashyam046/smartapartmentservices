@@ -673,7 +673,7 @@ async function handleUserGoogleAuth(email: string, name: string, stateData: any,
             } else {
               localStorage.setItem('securesociety_token', ${JSON.stringify(token)});
               localStorage.setItem('securesociety_user', ${JSON.stringify(safeUser)});
-              window.location.href = '/';
+              window.location.href = 'https://smartapartmentservices.vercel.app';
             }
           </script>
         </body>
