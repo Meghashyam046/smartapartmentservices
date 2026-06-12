@@ -16,6 +16,8 @@ export default function App() {
   const [panicActive, setPanicActive] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   // Load user session on boot
   useEffect(() => {
     const saved = localStorage.getItem('securesociety_user');
