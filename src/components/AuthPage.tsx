@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, UserRole } from '../types';
+import { useNavigate } from "react-router-dom";
 
 import { 
   Lock, Mail, User as UserIcon, Building, Phone, 
@@ -17,7 +18,7 @@ const API_URL =
 
 
 export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
-  
+  const navigate = useNavigate();
   // viewState can be 'login' | 'register' | 'forgot' | 'reset'
   const [viewState, setViewState] = useState<'login' | 'register' | 'forgot' | 'reset'>('login');
   const [role, setRole] = useState<UserRole>('resident');
