@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import { 
   Lock, Mail, User as UserIcon, Building, Phone, 
-  KeyRound, ShieldAlert, Hammer, ArrowRight, 
+  KeyRound, ShieldAlert, Hammer, ArrowRight,  
   CheckCircle2, AlertCircle, RefreshCw, Undo2, 
   Eye, EyeOff, Check, X
 } from 'lucide-react';
