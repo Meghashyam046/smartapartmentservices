@@ -6,6 +6,10 @@ import {
 } from 'lucide-react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://securesociety-smart-apartment-service.onrender.com";
+
 interface ResidentDashboardProps {
   user: User;
   onRefreshProfiles: () => void;
