@@ -363,7 +363,7 @@ const response = await fetch(`${API_URL}/api/auth/forgot-password`, {
       <div className="text-center space-y-2">
         <div className="inline-flex items-center gap-1.5 text-slate-900 bg-slate-100 border border-slate-200 px-3 py-1 rounded-full text-xs font-bold font-sans">
           <KeyRound className="w-3.5 h-3.5 text-indigo-505 animate-pulse" />
-          SecureSociety Authorized Access
+          Smart Apartment Authorized Access
         </div>
         <h2 className="text-2xl font-black font-sans text-slate-900 tracking-tight">Smart Apartment Services</h2>
         <p className="text-xs text-slate-500 max-w-xs mx-auto leading-normal">
