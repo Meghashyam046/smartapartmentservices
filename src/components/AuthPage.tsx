@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, UserRole } from '../types';
 import { useNavigate } from "react-router-dom";
-const navigate = useNavigate();
 
 import { 
   Lock, Mail, User as UserIcon, Building, Phone, 
@@ -19,6 +18,8 @@ const API_URL =
 
 
 export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
+  const navigate = useNavigate();
+
   // viewState can be 'login' | 'register' | 'forgot' | 'reset'
   const [viewState, setViewState] = useState<'login' | 'register' | 'forgot' | 'reset'>('login');
   const [role, setRole] = useState<UserRole>('resident');
@@ -62,12 +63,15 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
     const origin = event.origin;
 
     if (
-      !origin.endsWith('.run.app') &&
-      !origin.includes('localhost') &&
-      !origin.includes('127.0.0.1')
-    ) {
-      return;
-    }
+     const allowedOrigins = [
+  "https://securesociety-smart-apartment-service.onrender.com",
+  "http://localhost:3000"
+];
+
+if (!allowedOrigins.includes(event.origin)) {
+  return;
+}
+  
 
     if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
       setGoogleLoading(false);
