@@ -15,6 +15,7 @@
     "@supabase/supabase-js": "^2.108.0",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
+      "react-router-dom": "^7.8.2"
     "cors": "^2.8.5",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.2.3",
