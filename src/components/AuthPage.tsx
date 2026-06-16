@@ -60,22 +60,20 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
   // Handle message communication from Google Sign-In popup
   useEffect(() => {
   const handleMessage = (event: MessageEvent) => {
-    const origin = event.origin;
 
-    if (
-     const allowedOrigins = [
-  "https://securesociety-smart-apartment-service.onrender.com",
-  "http://localhost:3000"
-];
+    const allowedOrigins = [
+      "https://securesociety-smart-apartment-service.onrender.com",
+      "http://localhost:3000",
+      "http://localhost:5173"
+    ];
 
-if (!allowedOrigins.includes(event.origin)) {
-  return;
-}
-  
+    if (!allowedOrigins.includes(event.origin)) {
+      return;
+    }
 
-    if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
+    if (event.data?.type === "OAUTH_AUTH_SUCCESS") {
       setGoogleLoading(false);
-      setSuccessMsg('Google Authentication Completed Successfully.');
+      setSuccessMsg("Google Authentication Completed Successfully.");
 
       onLoginSuccess(event.data.user, event.data.token);
 
@@ -87,13 +85,12 @@ if (!allowedOrigins.includes(event.origin)) {
     }
   };
 
-  window.addEventListener('message', handleMessage);
+  window.addEventListener("message", handleMessage);
 
   return () => {
-    window.removeEventListener('message', handleMessage);
+    window.removeEventListener("message", handleMessage);
   };
 }, [onLoginSuccess, navigate]);
-
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
